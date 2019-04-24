@@ -1,4 +1,3 @@
-const dgram = require('dgram');
 const express = require('express');
 const ip = require('ip');
 const multer = require('multer');
@@ -19,14 +18,17 @@ app.post('/upload', upload.single('userfile'), function(req, res){
 });
 
 app.listen(3000, function(){
-    console.log("Express server has started on port 3000")
+    const serverConfig = {
+        "service" : "cSync",
+        "ip" : ip.address(),
+        "port" : 3000
+    };
+    const dgram = require('dgram');
+    const client = dgram.createSocket("udp4");
+    const configBuffer = Buffer.from(JSON.stringify(serverConfig));
+    console.log(configBuffer);    
+    client.send(configBuffer, 8000, '192.168.0.255', (err) => {
+        client.close();
+    });
+    console.log("Express server has started on port 3000");
 });
-
-const serverConfig = {
-    "service" : "cSync",
-    "ip" : ip.address(),
-    "port" : 3000
-};
-const client = dgram.createSocket("udp4");
-const message = JSON.stringify(serverConfig);
-client.send(message, 0, message.length, 8000, "192.168.0.255");

@@ -17,7 +17,7 @@ def waitServer():
     s.bind(('',8000))
     while True:
         msg, addr = s.recvfrom(1024) # 브로드케스트 서버의 전송을 기다린다.
-        recv = json.loads(msg)
+        recv = json.loads(msg.decode())
         if recv["service"] == "cSync" : 
             return recv
 
