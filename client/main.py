@@ -27,3 +27,5 @@ if __name__ == "__main__":
     camera.start_preview()
     config = waitServer()
     print(config)
+
+camera.close()
