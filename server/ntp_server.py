@@ -298,7 +298,7 @@ class WorkThread(threading.Thread):
                 sendPacket.SetOriginTimeStamp(timeStamp_high, timeStamp_low)
                 sendPacket.recv_timestamp = recvTimestamp
                 sendPacket.tx_timestamp = system_to_ntp_time(time.time())
-                socket.sendto(sendPacket.to_data(), addr)
+                self.socket.sendto(sendPacket.to_data(), addr)
                 print("Sended to %s:%d" % (addr[0], addr[1]))
             except queue.Empty:
                 continue
