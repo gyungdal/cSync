@@ -8,9 +8,8 @@ camera = None
 
 def capture():    
     global camera
-        camera.resolution = (3280, 2464)
-        camera.start_preview()
-
+    stream = io.BytesIO()
+    camera.capture(stream, 'png')
 
 def waitServer():
     s = socket(AF_INET, SOCK_DGRAM)
@@ -24,6 +23,7 @@ def waitServer():
 
 if __name__ == "__main__":
     camera = picamera.PiCamera() 
+    camera.resolution = (3280, 2464)
+    camera.start_preview()
     config = waitServer()
     print(config)
-
