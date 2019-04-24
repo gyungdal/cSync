@@ -24,5 +24,5 @@ if __name__ == "__main__":
         config = waitServer()
     print(config)
     c = ntplib.NTPClient()
-    response = c.request(config.ip, port=config.ntp.port)
+    response = c.request(config['ip'], port=config['ntp']['port'])
     print(ctime(response.tx_time))
