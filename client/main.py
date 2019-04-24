@@ -1,6 +1,16 @@
 # -*- coding: utf8 -*-
 from socket import *
 import json
+import time
+import picamera
+
+camera = None
+
+def capture():    
+    global camera
+        camera.resolution = (3280, 2464)
+        camera.start_preview()
+
 
 def waitServer():
     s = socket(AF_INET, SOCK_DGRAM)
@@ -12,6 +22,8 @@ def waitServer():
         if recv["service"] == "cSync" : 
             return recv
 
-if __name__ == "__main__":   
+if __name__ == "__main__":
+    camera = picamera.PiCamera() 
     config = waitServer()
     print(config)
+
