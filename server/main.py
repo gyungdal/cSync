@@ -3,6 +3,18 @@ import time
 import json
 from ntp_server import *
 
+def get_ip():
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        # doesn't even have to be reachable
+        s.connect(('10.255.255.255', 1))
+        IP = s.getsockname()[0]
+    except:
+        IP = '127.0.0.1'
+    finally:
+        s.close()
+    return IP
+
 if __name__ == "__main__":
     ntpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     ntpSocket.bind(("0.0.0.0", 0))
@@ -18,7 +30,7 @@ if __name__ == "__main__":
     broadcast.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
     serverConfig = json.dumps({
         "service": "cSync",
-        "ip": socket.gethostbyname(socket.gethostname()),
+        "ip": get_ip(),
         "file" : {
             "port": 3000
         },
