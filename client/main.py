@@ -4,12 +4,12 @@ import json
 import time
 import picamera
 
-camera = None
-
-def capture():    
-    global camera
-    stream = io.BytesIO()
-    camera.capture(stream, 'png')
+def capture():   
+    camera = picamera.PiCamera() 
+    camera.resolution = (3280, 2464)
+    camera.start_preview()
+    camera.capture('test.png')
+    camera.close()
 
 def waitServer():
     s = socket(AF_INET, SOCK_DGRAM)
@@ -22,10 +22,6 @@ def waitServer():
             return recv
 
 if __name__ == "__main__":
-    camera = picamera.PiCamera() 
-    camera.resolution = (3280, 2464)
-    camera.start_preview()
     config = waitServer()
     print(config)
-
-camera.close()
+    capture()
