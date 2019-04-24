@@ -3,13 +3,10 @@ import socket
 import struct
 import time
 import queue
-
 import threading
 import select
 
 taskQueue = queue.Queue()
-stopFlag = False
-
 
 def system_to_ntp_time(timestamp):
     """Convert a system time to a NTP time.
@@ -59,7 +56,7 @@ def _to_time(integ, frac, n=32):
     Retuns:
     timestamp
     """
-    return integ + float(frac) / 2**n
+    return integ + float(frac)/2**n
 
 
 class NTPException(Exception):
@@ -183,8 +180,8 @@ class NTPPacket:
                                  self.precision,
                                  _to_int(self.root_delay) << 16 | _to_frac(
                                      self.root_delay, 16),
-                                 _to_int(self.root_dispersion) << 16
-                                 | _to_frac(self.root_dispersion, 16),
+                                 _to_int(self.root_dispersion) << 16 |
+                                 _to_frac(self.root_dispersion, 16),
                                  self.ref_id,
                                  _to_int(self.ref_timestamp),
                                  _to_frac(self.ref_timestamp),
@@ -221,8 +218,8 @@ class NTPPacket:
         self.stratum = unpacked[1]
         self.poll = unpacked[2]
         self.precision = unpacked[3]
-        self.root_delay = float(unpacked[4]) / 2**16
-        self.root_dispersion = float(unpacked[5]) / 2**16
+        self.root_delay = float(unpacked[4])/2**16
+        self.root_dispersion = float(unpacked[5])/2**16
         self.ref_id = unpacked[6]
         self.ref_timestamp = _to_time(unpacked[7], unpacked[8])
         self.orig_timestamp = _to_time(unpacked[9], unpacked[10])
@@ -244,12 +241,16 @@ class NTPPacket:
 class RecvThread(threading.Thread):
     def __init__(self, socket):
         threading.Thread.__init__(self)
+        self.stopFlag = False
         self.socket = socket
 
+    def stop(self):
+        self.stopFlag = True
+        
     def run(self):
-        global taskQueue, stopFlag
+        global taskQueue
         while True:
-            if stopFlag == True:
+            if self.stopFlag:
                 print("RecvThread Ended")
                 break
             rlist, wlist, elist = select.select([self.socket], [], [], 1)
@@ -258,22 +259,25 @@ class RecvThread(threading.Thread):
                 for tempSocket in rlist:
                     try:
                         data, addr = tempSocket.recvfrom(1024)
-                        recvTimestamp = recvTimestamp = system_to_ntp_time(
-                            time.time())
+                        recvTimestamp = recvTimestamp = system_to_ntp_time(time.time())
                         taskQueue.put((data, addr, recvTimestamp))
-                    except socket.error:
-                        print(socket.error)
+                    except socket.error as msg:
+                        print(msg)
 
 
 class WorkThread(threading.Thread):
     def __init__(self, socket):
         threading.Thread.__init__(self)
         self.socket = socket
+        self.stopFlag = False
 
+    def stop(self):
+        self.stopFlag = True
+        
     def run(self):
-        global taskQueue, stopFlag
+        global taskQueue
         while True:
-            if stopFlag == True:
+            if self.stopFlag :
                 print("WorkThread Ended")
                 break
             try:
@@ -285,12 +289,12 @@ class WorkThread(threading.Thread):
                 sendPacket.stratum = 2
                 sendPacket.poll = 10
                 '''
-        sendPacket.precision = 0xfa
-        sendPacket.root_delay = 0x0bfa
-        sendPacket.root_dispersion = 0x0aa7
-        sendPacket.ref_id = 0x808a8c2c
-        '''
-                sendPacket.ref_timestamp = recvTimestamp - 5
+                sendPacket.precision = 0xfa
+                sendPacket.root_delay = 0x0bfa
+                sendPacket.root_dispersion = 0x0aa7
+                sendPacket.ref_id = 0x808a8c2c
+                '''
+                sendPacket.ref_timestamp = recvTimestamp-5
                 sendPacket.SetOriginTimeStamp(timeStamp_high, timeStamp_low)
                 sendPacket.recv_timestamp = recvTimestamp
                 sendPacket.tx_timestamp = system_to_ntp_time(time.time())
@@ -300,24 +304,4 @@ class WorkThread(threading.Thread):
                 continue
 
 
-listenIp = "127.0.0.1"
-listenPort = 12345
-socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-socket.bind((listenIp, listenPort))
-print("local socket: ", socket.getsockname())
-recvThread = RecvThread(socket)
-recvThread.start()
-workThread = WorkThread(socket)
-workThread.start()
-
-while True:
-    try:
-        time.sleep(0.5)
-    except KeyboardInterrupt:
-        print("Exiting...")
-        stopFlag = True
-        recvThread.join()
-        workThread.join()
-        # socket.close()
-        print("Exited")
-        break
+# https://github.com/limifly/ntpserver
