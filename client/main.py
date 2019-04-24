@@ -2,6 +2,9 @@
 import socket
 import json
 import time
+import ntplib
+from time import ctime
+
 
 def waitServer():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -20,3 +23,6 @@ if __name__ == "__main__":
     while config == None :
         config = waitServer()
     print(config)
+    c = ntplib.NTPClient()
+    response = c.request(config.ip, port=config.ntp.port)
+    print(ctime(response.tx_time))
