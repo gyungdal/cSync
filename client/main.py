@@ -2,8 +2,6 @@
 import socket
 import json
 import time
-import ntplib
-from time import ctime
 # https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
 def waitServer():
@@ -30,8 +28,5 @@ if __name__ == "__main__":
             while config == None :
                 config = waitServer()
             print(config)
-            c = ntplib.NTPClient()
-            response = c.request(config['ip'], port=config['ntp']['port'])
-            print(ctime(response.tx_time))
     except Exception as ex: # 에러 종류
         print('[ERROR] : ', ex)
