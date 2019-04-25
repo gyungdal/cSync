@@ -3,6 +3,7 @@ import select
 import socket
 import threading
 import sys
+import json
 import datetime
 
 from os import path, makedirs
@@ -29,9 +30,9 @@ class fileServer(threading.Thread):
             if not path.isdir(self.path):
                 makedirs(self.path)
         except OSError as e:
-            if e.errno != OSError.EEXIST:
-                print("Failed to create directory!!!!!")
-                raise
+            print("Failed to create directory!!!!!")
+            print(e)
+            raise
 
             
     def getPort(self):
@@ -39,6 +40,12 @@ class fileServer(threading.Thread):
 
     def stop(self):
         self.runningFlag = False
+        
+    def sendParam(self, param):
+        for item in self.inputs:
+            if item != self.server:
+                item.send(json.dumps(param))
+                
     def run(self):
         while self.inputs:
             if not self.runningFlag :
