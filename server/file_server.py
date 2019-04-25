@@ -3,6 +3,9 @@ import select
 import socket
 import threading
 import sys
+import datetime
+
+from os import path, makedirs
 from time import sleep
 
 
@@ -15,11 +18,22 @@ class fileServer(threading.Thread):
         self.server.listen(128)
         self.inputs = [self.server]
         self.errors = []
-        self.message_queues = {}
+        self.connectList = {}
         self.runningFlag = True
+        dt = datetime.datetime.now()
+        self.path = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
         self.clientID = 0
         print(self.server.getsockname())
+    def __makeFolder(self):
+        try:
+            if not path.isdir(self.path):
+                makedirs(self.path)
+        except OSError as e:
+            if e.errno != EEXIST:
+                print("Failed to create directory!!!!!")
+                raise
 
+            
     def getPort(self):
         return self.server.getsockname()[1]
 
@@ -31,25 +45,27 @@ class fileServer(threading.Thread):
                 for item in self.inputs:
                     if item != self.server:
                         item.close()
-                        del self.message_queues[item]
+                        self.connectList.close()
+                        del self.connectList[item]
                 self.server.close()
                 break
                 
-            readable, _, exceptional = select.select(
-                self.inputs, [], [], 1)
+            readable, _, _ = select.select(
+                self.inputs, [], [], 0.1)
             for s in readable:
                 if s is self.server:
                     connection, _ = s.accept()
                     connection.setblocking(0)
                     self.inputs.append(connection)
-                    self.message_queues[connection] = queue.Queue()
+                    self.connectList[connection] = open(path.join(self.path, "{}.png".format(self.clientID)), "wb")
                 else:
                     data = s.recv(1024)
                     if data:
                         print("[RECV " + str(self.inputs.index(s)) + "] " + str(data))
-                        self.message_queues[s].put(data)
+                        self.connectList[s].write(data)
                     else:
                         self.inputs.remove(s)
                         s.close()
-                        del self.message_queues[s]
+                        self.connectList[s].close()
+                        del self.connectList[s]
             
