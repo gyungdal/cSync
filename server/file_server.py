@@ -5,6 +5,7 @@ import threading
 import sys
 import json
 import datetime
+import type.camera_param
 
 from os import path, makedirs
 from time import sleep
@@ -44,7 +45,7 @@ class fileServer(threading.Thread):
     def sendParam(self, param):
         for item in self.inputs:
             if item != self.server:
-                item.send(json.dumps(param))
+                item.send(param.toJson())
                 
     def run(self):
         while self.inputs:
