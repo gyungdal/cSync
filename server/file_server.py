@@ -58,6 +58,7 @@ class fileServer(threading.Thread):
                     connection.setblocking(0)
                     self.inputs.append(connection)
                     self.connectList[connection] = open(path.join(self.path, "{}.png".format(self.clientID)), "wb")
+                    self.clientID += 1
                 else:
                     data = s.recv(1024)
                     if data:
