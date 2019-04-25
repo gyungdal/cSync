@@ -29,7 +29,7 @@ class fileServer(threading.Thread):
             if not path.isdir(self.path):
                 makedirs(self.path)
         except OSError as e:
-            if e.errno != EEXIST:
+            if e.errno != OSError.EEXIST:
                 print("Failed to create directory!!!!!")
                 raise
 
@@ -45,7 +45,7 @@ class fileServer(threading.Thread):
                 for item in self.inputs:
                     if item != self.server:
                         item.close()
-                        self.connectList.close()
+                        self.connectList[item].close()
                         del self.connectList[item]
                 self.server.close()
                 break
