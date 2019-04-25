@@ -3,7 +3,7 @@ import socket
 import json
 import time
 
-from . import communicationThread
+import communicationThread
 
 # https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
