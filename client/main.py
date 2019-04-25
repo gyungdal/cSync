@@ -2,7 +2,8 @@
 import socket
 import json
 import time
-import communicationThread
+
+from . import communicationThread
 
 # https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
@@ -28,7 +29,7 @@ if __name__ == "__main__":
         while True:
             config = waitServer()
             print(config)
-            comm = CommunicationThread(config)
+            comm = communicationThread(config)
             comm.start()
             while 0x0f > comm.getStatus():
                 time.sleep(1)

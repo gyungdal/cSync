@@ -43,12 +43,8 @@ class CommunicationThread(Thread):
             self.status = COMMUNICATION_STATUS.IMAGE_SEND
             connection = self.client.makefile('wb')
             for _ in self.camera.capture_continuous(self.stream, 'png'):
-                connection.write(struct.pack('<L', self.stream.tell()))
-                connection.flush()
-                self.stream.seek(0)
                 connection.write(self.stream.read())
                 break
-            connection.write(struct.pack('<L', 0))
         finally:        
             connection.close()
     
