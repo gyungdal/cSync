@@ -4,6 +4,7 @@ import json
 import time
 import ntplib
 from time import ctime
+# https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
 def waitServer():
     try:
