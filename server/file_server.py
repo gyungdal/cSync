@@ -1,7 +1,7 @@
 import select
 import socket
 import sys
-
+from time import sleep
 
 class fileServer(threading.Thread):
     def __init__(self):
@@ -14,6 +14,7 @@ class fileServer(threading.Thread):
         # select 함수에서 관찰될 소켓 리스트 설정
         self.input_list = [self.server]
         self.connectionList = []
+        print(self.server.getsockname())
 
     def getPort(self):
         return self.server.getsockname()[1]
@@ -61,3 +62,10 @@ class fileServer(threading.Thread):
         server.close()
 
 # 참고 :  https: //scienceofdata.tistory.com/entry/Python-select-함수를-이용한-간단한-에코-서버클라이언트-예제
+
+file = fileServer()
+file.start()
+
+while True:
+    sleep(10)
+    pass
