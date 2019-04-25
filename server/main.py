@@ -3,6 +3,8 @@ import time
 import json
 from ntp_server import NTPServer
 
+ntpInstance = None
+
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     try:
@@ -15,9 +17,8 @@ def get_ip():
         s.close()
     return IP
 
-if __name__ == "__main__":
-    ntpInstance = NTPServer()
-    ntpInstance.start()
+def broadcast():
+    global ntpInstance
     broadcast = socket.socket(
         socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     broadcast.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -35,7 +36,13 @@ if __name__ == "__main__":
     })
     print(serverConfig)
     broadcast.sendto(bytearray(serverConfig.encode()), ("192.168.0.255", 8000))
-
+    broadcast.close()
+    
+if __name__ == "__main__":
+    ntpInstance = NTPServer()
+    ntpInstance.start()
+    broadcast()
+    
     while True:
         try:
             time.sleep(1)
