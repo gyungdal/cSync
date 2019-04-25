@@ -303,5 +303,23 @@ class WorkThread(threading.Thread):
             except queue.Empty:
                 continue
 
+class NTPServer:
+    def __init__(self):
+        self.ntpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.ntpSocket.bind(("0.0.0.0", 0))
+        self.recvThread = RecvThread(self.ntpSocket)
+        self.workThread = WorkThread(self.ntpSocket)
+        
+    def getPort(self):
+        return self.ntpSocket.getsockname()[1]
+    
+    def start(self):
+        self.recvThread.start()
+        self.workThread.start()
+        
+    def stop(self):
+        self.recvThread.stop()
+        self.workThread.stop()
+        
 
 # https://github.com/limifly/ntpserver

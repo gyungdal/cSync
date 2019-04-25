@@ -1,7 +1,7 @@
 import socket
 import time
 import json
-from ntp_server import *
+from ntp_server import NTPServer
 
 def get_ip():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -16,13 +16,8 @@ def get_ip():
     return IP
 
 if __name__ == "__main__":
-    ntpSocket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    ntpSocket.bind(("0.0.0.0", 0))
-    recvThread = RecvThread(ntpSocket)
-    recvThread.start()
-    workThread = WorkThread(ntpSocket)
-    workThread.start()
-
+    ntpInstance = NTPServer()
+    ntpInstance.start()
     broadcast = socket.socket(
         socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     broadcast.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -35,7 +30,7 @@ if __name__ == "__main__":
             "port": 3000
         },
         "ntp" : {
-            "port": ntpSocket.getsockname()[1]
+            "port": ntpInstance.getPort()
         }
     })
     print(serverConfig)
@@ -46,9 +41,7 @@ if __name__ == "__main__":
             time.sleep(1)
         except KeyboardInterrupt:
             print("Exiting...")
-            recvThread.stop()
-            workThread.stop()
-            # socket.close()
+            ntpInstance.stop()
             print("Exited")
             break
         
