@@ -2,6 +2,8 @@
 import socket
 import json
 import time
+import communicationThread
+
 # https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
 def waitServer():
@@ -24,9 +26,11 @@ def waitServer():
 if __name__ == "__main__":
     try: 
         while True:
-            config = None
-            while config == None :
-                config = waitServer()
+            config = waitServer()
             print(config)
+            comm = CommunicationThread(config)
+            comm.start()
+            while 0x0f > comm.getStatus():
+                time.sleep(1)
     except Exception as ex: # 에러 종류
         print('[ERROR] : ', ex)

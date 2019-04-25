@@ -15,8 +15,8 @@ class COMMUNICATION_STATUS(enum.Enum):
     CAMERA_CONFIG = 1
     NTP_SYNC = 2
     IMAGE_SEND = 3
-    ERROR = 0xf0
     DONE = 0x0f
+    ERROR = 0xf0
 
 class CommunicationThread(Thread):
     def __init__(self, config):
@@ -56,16 +56,15 @@ class CommunicationThread(Thread):
         return self.status
     
     def run(self):
-        while self.status != COMMUNICATION_STATUS.ERROR:
-            try:
-                data = self.client.recv(1024)
-                config = json.loads(data)
-                self.status = COMMUNICATION_STATUS.NTP_SYNC
-                if "shoot_time" in config.keys():
-                    response = self.ntp.request(config['ip'], port=config['ntp']['port'])
-                    print(ctime(response.tx_time))        
-
-            except Exception as e:
-                self.status = COMMUNICATION_STATUS.ERROR
-                print("[ERROR] " + str(e))
+        try:
+            data = self.client.recv(1024)
+            config = json.loads(data)
+            self.status = COMMUNICATION_STATUS.NTP_SYNC
+            if "shoot_time" in config.keys():
+                response = self.ntp.request(config['ip'], port=config['ntp']['port'])
+                print(ctime(response.tx_time))        
+                self.capture()
+        except Exception as e:
+            self.status = COMMUNICATION_STATUS.ERROR
+            print("[ERROR] " + str(e))
             
