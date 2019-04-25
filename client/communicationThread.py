@@ -56,7 +56,7 @@ class CommunicationThread(Thread):
         return self.status
     
     def run(self):
-        while True:
+        while self.status != COMMUNICATION_STATUS.ERROR:
             try:
                 data = self.client.recv(1024)
                 config = json.loads(data)
@@ -68,5 +68,4 @@ class CommunicationThread(Thread):
             except Exception as e:
                 self.status = COMMUNICATION_STATUS.ERROR
                 print("[ERROR] " + str(e))
-                pass
             
