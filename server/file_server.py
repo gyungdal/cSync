@@ -31,8 +31,7 @@ class fileServer(threading.Thread):
             if not path.isdir(self.path):
                 makedirs(self.path)
         except OSError as e:
-            print("Failed to create directory!!!!!")
-            print(e)
+            print("[Error] " + e)
             raise
 
             
@@ -62,18 +61,20 @@ class fileServer(threading.Thread):
                 self.inputs, [], [], 0.1)
             for s in readable:
                 if s is self.server:
-                    connection, _ = s.accept()
+                    connection, addr = s.accept()
                     connection.setblocking(0)
                     self.inputs.append(connection)
                     self.connectList[connection] = open(path.join(self.path, "{}.png".format(self.clientID)), "wb")
+                    print("[Connect] Client " + str(self.clientID) + " Connected, " + str(addr))
                     self.clientID += 1
                 else:
                     data = s.recv(1024)
                     if data:
-                        print("[RECV " + str(self.inputs.index(s)) + "] " + str(data))
+                        print("[Recv] Client " + str(self.inputs.index(s)) + " : " + str(len(data)) + " Bytes")
                         self.connectList[s].write(data)
                     else:
                         self.inputs.remove(s)
+                        print("[Close] Client " + str(s.getsockname()[0]))
                         s.close()
                         self.connectList[s].close()
                         del self.connectList[s]
