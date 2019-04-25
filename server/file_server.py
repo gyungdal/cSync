@@ -7,6 +7,7 @@ from time import sleep
 
 class fileServer(threading.Thread):
     def __init__(self):
+        threading.Thread.__init__(self)
         # 소켓생성
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # 바인드
