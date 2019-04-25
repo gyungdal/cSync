@@ -26,12 +26,12 @@ class fileServer(threading.Thread):
         pass
 
     def run(self):
-       while True:
+        while True:
             # select 함수는 관찰될 read, write, except 리스트가 인수로 들어가며
             # 응답받은 read, write, except 리스트가 반환된다.
             # input_list 내에 있는 소켓들에 데이터가 들어오는지 감시한다.
             # 다르게 말하면 input_list 내에 읽을 준비가 된 소켓이 있는지 감시한다.
-            input_ready, write_ready, except_ready = select.select(
+            input_ready, __, _ = select.select(
                 self.input_list, [], [])
 
             # 응답받은 read 리스트 처리
@@ -45,7 +45,7 @@ class fileServer(threading.Thread):
                     else:
                         index = len(self.connectionList)
                         self.connectionList.append(address)
-                    print("[INFO] PEER " + index + " Connected")
+                    print("[INFO] PEER " + str(index) + " Connected")
 
                     # input_list에 추가함으로써 데이터가 들어오는 것을 감시함
                     self.input_list.append(client)
@@ -54,15 +54,15 @@ class fileServer(threading.Thread):
                 else:
                     data = ir.recv(1024)
                     if data:
-                        print(ir.getpeername(), 'send :', data, flush=True)
+                        print(''.join(map(str, ir.getpeername())) + 'SEND :' + str(data), flush=True)
                         ir.send(data)
                     # 데이터가 없는경우, 즉 클라이언트에서 소켓을 close 한경우
                     else:
-                        print(ir.getpeername(), 'close', flush=True)
+                        print(''.join(map(str, ir.getpeername())) + 'CLOSE', flush=True)
                         ir.close()
                         # 리스트에서 제거
                         self.input_list.remove(ir)
-            self.server.close()
+        self.server.close()
 
 # 참고 :  https: //scienceofdata.tistory.com/entry/Python-select-함수를-이용한-간단한-에코-서버클라이언트-예제
 
