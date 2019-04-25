@@ -24,7 +24,7 @@ class CommunicationThread(Thread):
         self.status = COMMUNICATION_STATUS.SETUP
         self.config = config
         self.camera = picamera.PiCamera()
-        self.stream = io.BytesIO()
+    self.stream = io.BytesIO()
         self.client = socket.socket()
         self.ntp = ntplib.NTPClient()
         self.cameraConfig({
@@ -45,7 +45,9 @@ class CommunicationThread(Thread):
             for _ in self.camera.capture_continuous(self.stream, 'png'):
                 connection.write(self.stream.read())
                 break
-        finally:        
+        except Exception as e:
+            print("[ERROR] " + str(e))
+        finally:
             connection.close()
     
     def getStatus(self):
@@ -64,3 +66,7 @@ class CommunicationThread(Thread):
             self.status = COMMUNICATION_STATUS.ERROR
             print("[ERROR] " + str(e))
             
+    def stop(self):
+        self.client.close()
+        self.camera.close()
+        self.stream.close()

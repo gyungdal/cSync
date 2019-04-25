@@ -33,5 +33,6 @@ if __name__ == "__main__":
             comm.start()
             while 0x0f > comm.getStatus():
                 time.sleep(1)
+            comm.stop()
     except Exception as ex: # 에러 종류
         print('[ERROR] : ', ex)
