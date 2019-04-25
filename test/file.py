@@ -2,7 +2,7 @@ import socket
 import sys
 
 ip = '127.0.0.1'
-port = int(sys.argv[1])
+port = sys.argv[1]
 size = 1024
  
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

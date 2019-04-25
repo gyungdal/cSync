@@ -17,16 +17,21 @@ class fileServer(threading.Thread):
         # select 함수에서 관찰될 소켓 리스트 설정
         self.input_list = [self.server]
         self.connectionList = []
+        self.stopFlag = False
         print(self.server.getsockname())
 
     def getPort(self):
         return self.server.getsockname()[1]
 
     def stop(self):
-        pass
+        for ir in self.input_list:
+            if ir != self.server:
+                ir.close()
+        self.server.close()
+        self.stopFlag = True
 
     def run(self):
-        while True:
+        while not self.stopFlag:
             # select 함수는 관찰될 read, write, except 리스트가 인수로 들어가며
             # 응답받은 read, write, except 리스트가 반환된다.
             # input_list 내에 있는 소켓들에 데이터가 들어오는지 감시한다.
@@ -65,10 +70,3 @@ class fileServer(threading.Thread):
         self.server.close()
 
 # 참고 :  https: //scienceofdata.tistory.com/entry/Python-select-함수를-이용한-간단한-에코-서버클라이언트-예제
-
-file = fileServer()
-file.start()
-
-while True:
-    sleep(10)
-    pass
