@@ -16,6 +16,7 @@ class fileServer(threading.Thread):
         self.inputs = [self.server]
         self.errors = []
         self.message_queues = {}
+        self.runningFlag = True
         self.clientID = 0
         print(self.server.getsockname())
 
@@ -23,12 +24,19 @@ class fileServer(threading.Thread):
         return self.server.getsockname()[1]
 
     def stop(self):
-        self.errors.append("HELLO")
-
+        self.runningFlag = False
     def run(self):
         while self.inputs:
+            if not self.runningFlag :
+                for item in self.inputs:
+                    if item != self.server:
+                        item.close()
+                        del self.message_queues[item]
+                self.server.close()
+                break
+                
             readable, _, exceptional = select.select(
-                self.inputs, [], self.errors, 1)
+                self.inputs, [], [], 1)
             for s in readable:
                 if s is self.server:
                     connection, _ = s.accept()
@@ -44,8 +52,4 @@ class fileServer(threading.Thread):
                         self.inputs.remove(s)
                         s.close()
                         del self.message_queues[s]
-
-            for s in exceptional:
-                self.inputs.remove(s)
-                s.close()
-                del self.message_queues[s]
+            
