@@ -22,14 +22,6 @@ def waitServer():
         print("[ERROR] : Server broadcast data crash")
         print("\tㄴ Description -> " + e)
         return None
-
-def testSocket(ip, port):
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('127.0.0.1', port))
-    s.send(bytearray("Hello".encode()))
-    data = s.recv(1024)
-    print(data.decode())
-    s.close()
     
 if __name__ == "__main__":
     try: 
@@ -41,6 +33,5 @@ if __name__ == "__main__":
             c = ntplib.NTPClient()
             response = c.request(config['ip'], port=config['ntp']['port'])
             print(ctime(response.tx_time))
-            testSocket(ip=config["ip"], port=config["file"]["port"])
     except Exception as ex: # 에러 종류
         print('[ERROR] : ', ex)
