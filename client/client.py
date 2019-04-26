@@ -9,6 +9,7 @@ class Client(Communcation):
         Communcation.__init__(self, sck)
         self.flag = True
         self.id = -1
+        self.response = None
         self.camera = picamera.PiCamera()
         
     def stop(self):
@@ -31,24 +32,25 @@ class Client(Communcation):
         packet = Packet(PacketType.RESPONSE_STATUS, data)
         self.send_json(packet.toJson())
         
-    def __response_capture(self, data):
+    def __response_capture(self):
         config = CaptureSetupData()
+        config.loadJson(self.response["data"])
         self.camera.resolution(config.width, config.height)
         self.camera.led = False
     
     def run(self):
         while self.flag:
-            response = loads(self.recv_json())
-            HANDLER_TABLE = {
-                PacketType.SET_CLIENT_ID.name : self.setID,
-                PacketType.REQUEST_ID.name : self.__response_id,
-                PacketType.REQUEST_STATUS.name : self.__response_status,
-                PacketType.REQUEST_CAPTURE.name : self.__response_capture,
-                PacketType.REQUEST_EXIT.name : self.stop
-            }
-            if response["type"] in HANDLER_TABLE :
-                if "data" in response.key:
-                    HANDLER_TABLE[response["type"]](response['data'])
-                else:
-                    HANDLER_TABLE[response["type"]]()
+            try:
+                self.response = loads(self.recv_json())
+                HANDLER_TABLE = {
+                    PacketType.SET_CLIENT_ID.name : self.setID,
+                    PacketType.REQUEST_ID.name : self.__response_id,
+                    PacketType.REQUEST_STATUS.name : self.__response_status,
+                    PacketType.REQUEST_CAPTURE.name : self.__response_capture,
+                    PacketType.REQUEST_EXIT.name : self.stop
+                }
+                if self.response["type"] in HANDLER_TABLE :
+                    HANDLER_TABLE[self.response["type"]]()
+            except Exception as e:
+                print("[ERROR] " + str(e))
         
