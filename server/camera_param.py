@@ -1,6 +1,7 @@
 from json import dumps, loads
+import enum
 
-class CameraParam:
+class Packet:
     def __init__(self):
         self.version = '20190425_dev'
         self.shoot_time = 0
@@ -19,3 +20,7 @@ class CameraParam:
         temp = loads(json)
         self.version = temp["version"]
         self.shoot_time = temp["shoot_time"]
+    
+class PacketType(enum.Enum):
+    GIVE_ID = enum.auto()
+    

@@ -10,7 +10,7 @@ import camera_param
 from os import path, makedirs
 from time import sleep
 
-
+# TODO : 패킷들 정의해서 일반 적인 방식으로 보내도록
 class fileServer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)    
@@ -18,7 +18,7 @@ class fileServer(threading.Thread):
         self.server.setblocking(0)
         self.server.bind(('0.0.0.0', 0))
         self.server.listen(128)
-        self.inputs = [self.server]
+        self.connections = [self.server]
         self.errors = []
         self.connectList = {}
         self.runningFlag = True
@@ -26,14 +26,14 @@ class fileServer(threading.Thread):
         self.path = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
         self.clientID = 0
         print(self.server.getsockname())
-    def __makeFolder(self):
+        
+    def __makeFolder(self, path):
         try:
-            if not path.isdir(self.path):
-                makedirs(self.path)
+            if not path.isdir(path):
+                makedirs(path)
         except OSError as e:
             print("[Error] " + e)
             raise
-
             
     def getPort(self):
         return self.server.getsockname()[1]
@@ -42,43 +42,36 @@ class fileServer(threading.Thread):
         self.runningFlag = False
         
     def sendParam(self, param):
-        for item in self.inputs:
+        for item in self.connections:
             if item != self.server:
                 item.send(param.toJson())
-                
+
     def run(self):
-        while self.inputs:
+        while self.connections:
             if not self.runningFlag :
-                for item in self.inputs:
+                for item in self.connections:
                     if item != self.server:
                         item.close()
-                        self.connectList[item].close()
-                        del self.connectList[item]
                 self.server.close()
                 break
-                
             readable, _, _ = select.select(
-                self.inputs, [], [], 0.1)
+                self.connections, [], [], 0.1)
             for s in readable:
                 if s is self.server:
                     connection, addr = s.accept()
                     connection.setblocking(0)
-                    connection.write(json.dumps({
+                    connection.sendall(json.dumps({
                         "id" : self.clientID
                     }))
-                    
                     print("[Connect] Client " + str(self.clientID) + " Connected, " + str(addr))
-                    self.inputs.append(connection)
+                    self.connections.append(connection)
                     self.clientID += 1
                 else:
-                    data = s.recv(1024)
+                    data = s.recv()
                     if data:
-                        print("[Recv] Client " + str(self.inputs.index(s)) + " : " + str(len(data)) + " Bytes")
-                        self.connectList[s].write(data)
+                        print("[Recv] Client " + str(self.connections.index(s)) + " : " + str(len(data)) + " Bytes")
                     else:
                         print("[Close] Client " + str(s.getsockname()[0]))
                         s.close()
-                        self.inputs.remove(s)
-                        self.connectList[s].close()
-                        del self.connectList[s]
+                        self.connections.remove(s)
             
