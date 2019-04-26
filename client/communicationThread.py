@@ -24,7 +24,7 @@ class CommunicationThread(Thread):
         self.status = COMMUNICATION_STATUS.SETUP
         self.config = config
         self.camera = picamera.PiCamera()
-    self.stream = io.BytesIO()
+        self.stream = io.BytesIO()
         self.client = socket.socket()
         self.ntp = ntplib.NTPClient()
         self.cameraConfig({
