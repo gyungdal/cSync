@@ -2,11 +2,11 @@ import socket
 import threading
 
 class Communcation(threading.Thread):
-    def __init__(self, sck):
+    def __init__(self, sck : socket.socket):
         threading.Thread.__init__(self)
         self.socket = sck
         
-    def __recvall(self, count) -> bytearray:
+    def __recvall(self, count : int) -> bytearray:
         buf = b''
         while count:
             newbuf = self.socket.recv(count)
@@ -22,7 +22,7 @@ class Communcation(threading.Thread):
             if lenght > 0 :
                 return self.__recvall(lenght).decode('utf8')
     
-    def send_json(self, txt):
+    def send_json(self, txt : str):
         lengthTxt = '{:0128d}'.format(len(txt))
         self.socket.sendall(lengthTxt)
         self.socket.sendall(txt)

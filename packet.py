@@ -17,11 +17,11 @@ class PacketType(enum.Enum):
     REQUEST_ID = enum.auto()
     RESPONSE_ID = enum.auto()
     
-    REQUEST_SYNC = enum.auto()
-    SYNC_DATA = enum.auto()
+    REQUEST_STATUS = enum.auto()
+    RESPONSE_STATUS = enum.auto()
     
-    CAPTURE_SETUP = enum.auto()
-    PHOTO_DATA = enum.auto()
+    REQUEST_CAPTURE = enum.auto()
+    RESPONSE_CAPTURE = enum.auto()
     
     REQUEST_EXIT = enum.auto()
     
@@ -71,10 +71,10 @@ class Packet:
             PacketType.SET_CLIENT_ID.name : IDData(),
             PacketType.REQUEST_ID.name : None,
             PacketType.RESPONSE_ID.name : IDData(),
-            PacketType.REQUEST_SYNC.name : None,
-            PacketType.SYNC_DATA.name : SyncData(),
-            PacketType.CAPTURE_SETUP.name : CaptureSetupData(),
-            PacketType.PHOTO_DATA.name : PhotoData(),
+            PacketType.REQUEST_STATUS.name : None,
+            PacketType.RESPONSE_STATUS.name : StatusData(),
+            PacketType.REQUEST_CAPTURE.name : CaptureSetupData(),
+            PacketType.RESPONSE_CAPTURE.name : PhotoData(),
             PacketType.REQUEST_EXIT.name : None
         }
         self.data = TABLE[temp['type']]
@@ -143,7 +143,7 @@ class PhotoData(BaseData):
         self.shotTime = data["shotTime"]
         self.photo = b64decode(data["photo"])
         
-class SyncData(BaseData):
+class StatusData(BaseData):
     def __init__(self, diff = 0, status = CameraStatus.DISCONNECTED):
         self.diff = diff
         self.status = status
