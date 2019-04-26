@@ -15,7 +15,7 @@ class PacketType(enum.Enum):
     REQUEST_SYNC = enum.auto()
     SYNC_DATA = enum.auto()
     
-    CAMERA_SETUP = enum.auto()
+    CAPTURE_SETUP = enum.auto()
     PHOTO_DATA = enum.auto()
     
     REQUEST_EXIT = enum.auto()
@@ -63,8 +63,20 @@ class Packet:
         self.version = temp["version"]
         self.type = PacketType[temp["type"]]
         self.data.loadJson(temp["data"])
-
-class CameraSetupData(BaseData):
+        
+class IDData(BaseData):
+    def __init__(self, id = 0):
+        self.id = id
+        
+    def toJson(self) -> str:
+        return dumps({
+            "id" : id
+        })
+        
+    def loadJson(self, txt):
+        self.id = loads(txt)["id"]
+        
+class CaptureSetupData(BaseData):
     def __init__(self, width = 3240, height = 2494, shotTime = datetime.now()):
         self.width = width
         self.height = height
@@ -83,31 +95,21 @@ class CameraSetupData(BaseData):
         self.width = data["width"]
         self.height = data["height"]
         
-class IDData(BaseData):
-    def __init__(self, id = 0):
-        self.id = id
-        
-    def toJson(self) -> str:
-        return dumps({
-            "id" : id
-        })
-        
-    def loadJson(self, txt):
-        self.id = loads(txt)["id"]
-        
-        
 class PhotoData(BaseData):
-    def __init__(self, photo):
+    def __init__(self, shotTime, photo):
         self.id = id
+        self.shotTime = shotTime
         self.photo = photo
         
     def toJson(self) -> str:
         return dumps({
+            "shotTime" : self.shotTime,
             "photo" : b64encode(self.photo)
         })
         
     def loadJson(self, txt):
         data = loads(txt)
+        self.shotTime = data["shotTime"]
         self.photo = data["photo"]
         
 class SyncData(BaseData):
