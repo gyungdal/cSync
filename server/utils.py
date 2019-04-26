@@ -22,11 +22,9 @@ def hereAmI(fileServerPort : int, ntpPort : int):
     serverConfig = json.dumps({
         "service": "cSync",
         "ip": getIp(),
-        "file" : {
-            "port": fileServerPort
-        },
-        "ntp" : {
-            "port": ntpPort
+        "port" : {
+            "file" : fileServerPort,
+            "ntp" : ntpPort
         }
     })
     print(serverConfig)

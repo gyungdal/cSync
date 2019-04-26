@@ -31,7 +31,7 @@ class CommunicationThread(Thread):
             "width" : 3240,
             "height" : 2494
         }) 
-        self.client.connect((self.config["ip"], self.config["file"]["port"]))
+        self.client.connect((self.config["ip"], self.config["port"]["file"]))
     
     def cameraConfig(self, config):
         self.status = COMMUNICATION_STATUS.CAMERA_CONFIG
@@ -59,7 +59,7 @@ class CommunicationThread(Thread):
             config = json.loads(data)
             self.status = COMMUNICATION_STATUS.NTP_SYNC
             if "shoot_time" in config.keys():
-                response = self.ntp.request(config['ip'], port=config['ntp']['port'])
+                response = self.ntp.request(config['ip'], port=config['port']['ntp'])
                 print(ctime(response.tx_time))        
                 self.capture()
         except Exception as e:
