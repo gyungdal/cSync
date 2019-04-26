@@ -34,7 +34,7 @@ class BaseData:
         pass
     
 class Packet:
-    def __init__(self, tp : PacketType, data : BaseData):
+    def __init__(self, tp : PacketType, data):
         self.version = '20190426_dev'
         self.type = tp
         self.data = data
@@ -62,7 +62,19 @@ class Packet:
         temp = loads(json)
         self.version = temp["version"]
         self.type = PacketType[temp["type"]]
-        self.data.loadJson(temp["data"])
+        TABLE = {
+            PacketType.SET_CLIENT_ID.name : IDData(),
+            PacketType.REQUEST_ID.name : None,
+            PacketType.RESPONSE_ID.name : IDData(),
+            PacketType.REQUEST_SYNC.name : None,
+            PacketType.SYNC_DATA.name : SyncData(),
+            PacketType.CAPTURE_SETUP.name : CaptureSetupData(),
+            PacketType.PHOTO_DATA.name : PhotoData(),
+            PacketType.REQUEST_EXIT.name : None
+        }
+        self.data = TABLE[temp['type']]
+        if self.data != None:
+            self.data.loadJson(temp["data"])
         
 class IDData(BaseData):
     def __init__(self, id = 0):
