@@ -4,6 +4,10 @@ class CameraParam:
     def __init__(self):
         self.version = '20190425_dev'
         self.shoot_time = 0
+    
+    # timestamp
+    def setShootTime(self, when):
+        self.shoot_time = when
         
     def toJson(self):
         return dumps({
