@@ -108,7 +108,7 @@ class CaptureSetupData(BaseData):
         self.height = data["height"]
         
 class PhotoData(BaseData):
-    def __init__(self, shotTime, photo):
+    def __init__(self, shotTime = datetime.now(), photo = b''):
         self.id = id
         self.shotTime = shotTime
         self.photo = photo
