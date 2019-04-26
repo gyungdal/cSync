@@ -2,9 +2,9 @@ import socket
 import threading
 
 class Communcation(threading.Thread):
-    def __init__(self, socket):
+    def __init__(self, sck):
         threading.Thread.__init__(self)
-        self.socket = socket
+        self.socket = sck
         
     def __recvall(self, count) -> bytearray:
         buf = b''

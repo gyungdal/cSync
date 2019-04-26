@@ -4,8 +4,8 @@ from time import sleep
 from communication import Communcation
 
 class PeerThread(Communcation):
-    def __init__(self, socket, id):
-        super(socket)
+    def __init__(self, sck, id):
+        Communcation.__init__(self, sck)
         self.health = True
         self.id = id 
 
@@ -28,8 +28,7 @@ class PeerThread(Communcation):
         response = SyncData()
         response.loadJson(data)
         return response
-        
-        
+    
     def run(self):
         while self.health:
             sleep(1)
