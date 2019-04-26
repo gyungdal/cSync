@@ -14,3 +14,5 @@ class PacketType(enum.Enum):
     
     CAMERA_SETUP = enum.auto()
     PHOTO_DATA = enum.auto()
+    
+    REQUEST_EXIT = enum.auto()

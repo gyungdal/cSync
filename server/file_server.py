@@ -5,7 +5,6 @@ import threading
 import sys
 import json
 import datetime
-import camera_param
 
 from os import path, makedirs
 from time import sleep
@@ -20,7 +19,6 @@ class fileServer(threading.Thread):
         self.server.listen(128)
         self.connections = [self.server]
         self.errors = []
-        self.connectList = {}
         self.runningFlag = True
         dt = datetime.datetime.now()
         self.path = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
@@ -45,7 +43,7 @@ class fileServer(threading.Thread):
         for item in self.connections:
             if item != self.server:
                 item.send(param.toJson())
-
+        
     def run(self):
         while self.connections:
             if not self.runningFlag :
@@ -60,16 +58,15 @@ class fileServer(threading.Thread):
                 if s is self.server:
                     connection, addr = s.accept()
                     connection.setblocking(0)
-                    connection.sendall(json.dumps({
-                        "id" : self.clientID
-                    }))
                     print("[Connect] Client " + str(self.clientID) + " Connected, " + str(addr))
                     self.connections.append(connection)
                     self.clientID += 1
                 else:
-                    data = s.recv()
-                    if data:
-                        print("[Recv] Client " + str(self.connections.index(s)) + " : " + str(len(data)) + " Bytes")
+                    length = int(str(s.recv(128)))
+                    if length:
+                        recv = json.loads(s.recv(length))
+                        print("[Recv] Client " + str(self.connections.index(s)) + " : " + str(len(recv)) + " Bytes")
+                        
                     else:
                         print("[Close] Client " + str(s.getsockname()[0]))
                         s.close()
