@@ -118,9 +118,13 @@ class PhotoData(BaseData):
         self.shotTime = shotTime
         self.photo = photo
         
+    def setPhoto(self, photo: bytearray):
+        self.photo = photo
+    
+    def getPhoto(self) -> bytearray:
+        return self.photo
+    
     def toJson(self) -> str:
-        
-
         return dumps({
             "shotTime" : self.shotTime,
             "photo" : b64encode(self.photo)
