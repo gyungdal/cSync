@@ -30,7 +30,7 @@ class CommunicationThread(Thread):
         self.cameraConfig({
             "width" : 3240,
             "height" : 2494
-        })
+        }) 
         self.client.connect((self.config["ip"], self.config["file"]["port"]))
     
     def cameraConfig(self, config):
