@@ -16,6 +16,7 @@ class Client(Communcation):
     def stop(self):
         self.flag = False
         self.camera.close()
+        self.close()
         
     def setID(self, id : int):
         self.id = id

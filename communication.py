@@ -27,5 +27,8 @@ class Communcation(threading.Thread):
         self.socket.sendall(lengthTxt)
         self.socket.sendall(txt)
         
+    def close(self):
+        self.socket.close()
+        
     def run(self):
         pass
