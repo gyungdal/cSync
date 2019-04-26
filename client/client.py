@@ -5,9 +5,8 @@ from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, Pho
 import time
 import ntplib
 import io
-
 class Client(Communcation):
-    def __init__(self, sck):
+    def __init__(self, sck, config = {}):
         Communcation.__init__(self, sck)
         self.flag = True
         self.id = -1
