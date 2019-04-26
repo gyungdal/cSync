@@ -1,7 +1,8 @@
 import enum
 
 from json import dumps, loads
-from base64 import b64encode
+import os
+from base64 import b64encode, b64decode
 from datetime import datetime
 
 class PacketType(enum.Enum):
@@ -118,11 +119,23 @@ class PhotoData(BaseData):
             "shotTime" : self.shotTime,
             "photo" : b64encode(self.photo)
         })
+    
+    def savePhoto(self, path, filename) -> bool:
+        try:
+            if not os.path.isdir(path) :
+                os.mkdir(path)
+            file = os.open(os.path.join(path, filename), 'wb')
+            file.write(self.photo)
+            file.close()
+            return True
+        except Exception as e:
+            print("[ERROR] " + e)
+            return False
         
     def loadJson(self, txt):
         data = loads(txt)
         self.shotTime = data["shotTime"]
-        self.photo = data["photo"]
+        self.photo = b64decode(data["photo"])
         
 class SyncData(BaseData):
     def __init__(self, diff = 0, status = CameraStatus.DISCONNECTED):
