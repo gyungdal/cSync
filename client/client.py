@@ -28,9 +28,10 @@ class Client(Communcation):
         self.camera.close()
         self.close()
         
-    def setID(self, id : int):
-        self.id = id
-    
+        
+    def setID(self):
+        self.id = int(loads(self.response['data'])['id'])
+        
     def getID(self) -> int:
         return self.id
     
