@@ -5,10 +5,6 @@ import os
 from base64 import b64encode, b64decode
 from datetime import datetime
 
-epoch = datetime.datetime.utcfromtimestamp(0)
-def unix_time_millis(dt):
-    return (dt - epoch).total_seconds() * 1000.0
-
 class PacketType(enum.Enum):
     NONE = enum.auto()
     
