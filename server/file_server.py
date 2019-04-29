@@ -11,7 +11,7 @@ sys.path.insert(0, '../')
 from os import path, makedirs
 from time import sleep
 from json import dumps, loads
-from packet import IDData, Packet, PacketType, CameraStatus, PhotoData, CaptureSetupData
+from packet import IDData, Packet, PacketType, CameraStatus, PhotoData, CaptureSetupData, StatusData
 from communication import Communcation
 
 class PeerThread(Communcation):
@@ -39,10 +39,10 @@ class PeerThread(Communcation):
         self.send_json(data)
         response = loads(self.recv_json())
         data = loads(response['data'])
-        response = SyncData()
+        response = StatusData()
         response.loadJson(data)
         self.status = response.status
-        self.delay = response.delay
+        self.delay = response.diff
         print("[INFO] Client {} Status\n\tDelay : {}\nStatus : {}"
               .format(self.id, self.delay, self.status.name))
     

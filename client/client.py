@@ -2,18 +2,24 @@ import sys
 sys.path.insert(0, '../')
 from communication import Communcation
 from json import loads, dumps
-from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData
+from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData, CameraStatus
 from datetime import datetime
 import time
 import ntplib
 import io
+import socket
+
 class Client(Communcation):
-    def __init__(self, sck, config = {}):
+    def __init__(self, config = {}):
+        sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sck.connect((config['ip'], config['port']['file']))
         Communcation.__init__(self, sck)
         self.flag = True
         self.id = -1
+        self.ntp = ntplib.NTPClient()
         self.response = None
         self.camera = picamera.PiCamera()
+        self.config = config
         
     def stop(self):
         self.flag = False
@@ -33,6 +39,9 @@ class Client(Communcation):
     
     def __response_status(self):
         data = StatusData()
+        response = self.ntp.request(self.config['ip'], port=self.config['port']['ntp'])
+        data.diff = response.delay
+        data.status = CameraStatus.OK
         packet = Packet(PacketType.RESPONSE_STATUS, data)
         self.send_json(packet.toJson())
         
@@ -41,6 +50,7 @@ class Client(Communcation):
         config = CaptureSetupData()
         config.loadJson(self.response["data"])
         self.camera.resolution(config.width, config.height)
+        self.camera.framerate = 15
         self.camera.led = False
         while True:
             if config.shotTime >= datetime.now().timestamp() : # 시간 지나면 작동하게
@@ -65,5 +75,5 @@ class Client(Communcation):
                 if self.response["type"].name in HANDLER_TABLE.keys() :
                     HANDLER_TABLE[self.response["type"].name]()
             except Exception as e:
-                print("[ERROR] " + str(e))
+                print("[ERROR] Thread Exception" + str(e))
         
