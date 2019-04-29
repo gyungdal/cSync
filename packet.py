@@ -160,10 +160,10 @@ class StatusData(BaseData):
     def toJson(self) -> str:
         return dumps({
             "diff" : self.diff,
-            "status" : self.status
+            "status" : self.status.name
         })
         
     def loadJson(self, txt):
         data = loads(txt)
         self.diff = data["diff"]
-        self.status = data["status"]
+        self.status = CameraStatus[data["status"]]

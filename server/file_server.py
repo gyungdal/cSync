@@ -43,7 +43,7 @@ class PeerThread(Communcation):
         self.status = response.status
         self.delay = response.diff
         print("[INFO] Client {} Status\n\tDelay : {}\nStatus : {}"
-              .format(self.id, self.delay, self.status.name))
+              .format(self.id, self.delay, self.status))
     
     def capture(self, when : float, pt : str) :
         if self.status == CameraStatus.OK:
