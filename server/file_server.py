@@ -82,9 +82,11 @@ class fileServer(threading.Thread):
             raise
             
     def capture(self):
-        dt = datetime.datetime.now()
+        dt = datetime.datetime.now() + datetime.timedelta(seconds=5)
         경로 = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
         self.__makeFolder(경로)
+        for peer in self.peers:
+            peer.capture(when=dt.timestamp(), pt=경로)
         
     def getPort(self):
         return self.server.getsockname()[1]
