@@ -11,7 +11,7 @@ sys.path.insert(0, '../')
 from os import path, makedirs
 from time import sleep
 from json import dumps, loads
-from packet import IDData, Packet, PacketType, SyncData, CameraStatus, PhotoData, CaptureSetupData
+from packet import IDData, Packet, PacketType, CameraStatus, PhotoData, CaptureSetupData
 from communication import Communcation
 
 class PeerThread(Communcation):

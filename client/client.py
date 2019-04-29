@@ -63,7 +63,7 @@ class Client(Communcation):
             try:
                 self.response = loads(self.recv_json())
                 if self.response["type"] in HANDLER_TABLE :
-                    HANDLER_TABLE[self.response["type"]]()
+                    HANDLER_TABLE[self.response["type"].name]()
             except Exception as e:
                 print("[ERROR] " + str(e))
         
