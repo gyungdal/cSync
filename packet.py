@@ -94,7 +94,7 @@ class IDData(BaseData):
         self.id = loads(txt)["id"]
         
 class CaptureSetupData(BaseData):
-    def __init__(self, width = 3240, height = 2494, shotTime = datetime.now()):
+    def __init__(self, width = 3280, height = 2494, shotTime = datetime.now()):
         self.width = width
         self.height = height
         self.shotTime = shotTime
@@ -117,11 +117,16 @@ class PhotoData(BaseData):
     '''
     타임스탬프 값
     '''
-    def __init__(self, shotTime = datetime.now().timestamp(), photo = b''):
+    def __init__(self, shotTime:float = datetime.now().timestamp(), photo:bytearray = b''):
         self.id = id
         self.shotTime = shotTime
         self.photo = photo
         
+    def setShotTime(self, shotTime : float):
+        self.shotTime = shotTime
+        
+    def getShotTime(self) -> float:
+        return self.shotTime
     def setPhoto(self, photo: bytearray):
         self.photo = photo
     
@@ -131,7 +136,7 @@ class PhotoData(BaseData):
     def toJson(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
-            "photo" : b64encode(self.photo.getvalue())
+            "photo" : b64encode(self.photo)
         })
     
     def savePhoto(self, path: str, filename: str) -> bool:
@@ -139,7 +144,7 @@ class PhotoData(BaseData):
             if not os.path.isdir(path) :
                 os.mkdir(path)
             file = open(os.path.join(path, filename), 'wb')
-            file.write(self.photo.getvalue())
+            file.write(self.photo)
             file.close()
             return True
         except Exception as e:
