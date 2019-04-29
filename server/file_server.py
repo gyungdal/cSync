@@ -44,15 +44,16 @@ class PeerThread(Communcation):
         self.delay = response.status
     
     def capture(self, when, pt) :
-        data = CaptureSetupData(shotTime = when + self.delay)
-        packet = Packet(PacketType.REQUEST_CAPTURE, data)
-        data = packet.toJson()
-        self.send_json(data)
-        response = loads(self.recv_json())
-        data = loads(response['data'])
-        photo = PhotoData()
-        photo.loadJson(data)
-        photo.savePhoto(pt, "{}.png".format(self.id))
+        if self.status == CameraStatus.OK:
+            data = CaptureSetupData(shotTime = when + self.delay)
+            packet = Packet(PacketType.REQUEST_CAPTURE, data)
+            data = packet.toJson()
+            self.send_json(data)
+            response = loads(self.recv_json())
+            data = loads(response['data'])
+            photo = PhotoData()
+            photo.loadJson(data)
+            photo.savePhoto(pt, "{}.png".format(self.id))
         
          
     def run(self):
