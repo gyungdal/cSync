@@ -51,17 +51,17 @@ class Client(Communcation):
         result = PhotoData()
         config = CaptureSetupData()
         config.loadJson(self.response["data"])
-        self.camera.resolution(config.width, config.height)
+        self.camera.resolution = (config.width, config.height)
         self.camera.framerate = 15
         self.camera.led = False
-        while True:
+        stream = io.BytesIO()
+        for _ in self.camera.capture_continuous(stream, 'png'):
             if config.shotTime <= datetime.now().timestamp() : # 시간 지나면 작동하게
-                stream = io.BytesIO()
-                self.camera.capture(stream, 'png')
+                result.setShotTime(datetime.now().timestamp())
                 result.setPhoto(bytearray(stream.getvalue()))
-                #시간 데이터 저장
-                self.send_json(result.toJson())
                 break
+        #시간 데이터 저장
+        self.send_json(result.toJson())
 
     def run(self):
         HANDLER_TABLE = {
