@@ -43,4 +43,5 @@ if __name__ == "__main__":
     except Exception as ex: # 에러 종류
         print('[ERROR] : ', ex)
     finally:
-        comm.stop()
+        if comm != None:
+            comm.stop()
