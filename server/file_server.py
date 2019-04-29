@@ -37,7 +37,7 @@ class PeerThread(Communcation):
         data = packet.toJson()
         self.send_json(data)
         response = loads(self.recv_json())
-        print("[RECV] Packet Type : " + response.type)
+        print("[RECV] Packet : " + response)
         data = response['data']
         response = StatusData()
         response.loadJson(data)
