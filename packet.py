@@ -83,7 +83,7 @@ class IDData(BaseData):
         
     def toJson(self) -> str:
         return dumps({
-            "id" : id
+            "id" : self.id
         })
         
     def loadJson(self, txt):
