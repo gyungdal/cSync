@@ -26,12 +26,14 @@ def waitServer():
     
 if __name__ == "__main__":
     try: 
-        config = waitServer()
-        print(config)
-        comm = Client(config)
-        comm.start()
+        comm = None
         while True:
-            time.sleep(1)
+            config = waitServer()
+            print(config)
+            if comm != None:
+                if not comm.isAlive():
+                    comm = Client(config)
+                    comm.start()
     except Exception as ex: # 에러 종류
         print('[ERROR] : ', ex)
     finally:

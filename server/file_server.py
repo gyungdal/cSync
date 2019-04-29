@@ -115,3 +115,7 @@ class fileServer(threading.Thread):
             peer.start()
             self.clientID = self.clientID + 1
             self.peers.append(peer)
+            for peer in self.peers:
+                if not peer.isAlive():
+                    self.peers.remove(peer)
+                    self.clientID = self.clientID - 1

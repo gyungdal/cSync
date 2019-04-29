@@ -79,4 +79,5 @@ class Client(Communcation):
                     HANDLER_TABLE[self.response["type"]]()
             except Exception as e:
                 print("[ERROR] Thread Exception" + str(e))
+                self.stop()
         
