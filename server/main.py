@@ -16,7 +16,7 @@ if __name__ == "__main__":
     broadcast()
     while True:
         try:
-            value = input("CAPTURE?\nc : Capture\ns : status\nb : Broadcast")
+            value = input("CAPTURE?\nc : Capture\ns : status\nb : Broadcast\n")
             HANDLER_TABLE = {
                 'c' : fileInstance.capture,
                 'b' : broadcast,

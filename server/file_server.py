@@ -107,6 +107,7 @@ class fileServer(threading.Thread):
             connection, addr = self.server.accept()
             print("[Connect] Client " + str(self.clientID) + " Connected, " + str(addr))
             peer = PeerThread(connection, self.clientID)
+            peer.start()
             self.clientID = self.clientID + 1
             self.peers.append(peer)
         for item in self.peers:
