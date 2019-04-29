@@ -16,9 +16,10 @@ if __name__ == "__main__":
     while True:
         try:
             value = input("CAPTURE?\ny : Capture\ns : status")
-            if value == y :
-                
-            elif value == s :
+            if value == 'y' :
+                fileInstance.capture()
+            elif value == 's' :
+                fileInstance.getStatus()
         except KeyboardInterrupt:
             print("Exiting...")
             ntpInstance.stop()

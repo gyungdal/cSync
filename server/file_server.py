@@ -41,7 +41,9 @@ class PeerThread(Communcation):
         response = SyncData()
         response.loadJson(data)
         self.status = response.status
-        self.delay = response.status
+        self.delay = response.delay
+        print("[INFO] Client {} Status\n\tDelay : {}\nStatus : {}"
+              .format(self.id, self.delay, self.status.name))
     
     def capture(self, when : float, pt : str) :
         if self.status == CameraStatus.OK:
@@ -54,6 +56,7 @@ class PeerThread(Communcation):
             photo = PhotoData()
             photo.loadJson(data)
             photo.savePhoto(pt, "{}.png".format(self.id))
+            print("[INFO] Save Image {}.png".format(self.id))
          
     def run(self):
         self.setClientID()
@@ -71,12 +74,13 @@ class fileServer(threading.Thread):
         self.peers = []
         self.runningFlag = True
         self.clientID = 0
-        print(self.server.getsockname())
+        print("[INFO] File Server Start\n\tㄴ{}".format(self.server.getsockname()))
         
     def __makeFolder(self, path):
         try:
             if not path.isdir(path):
                 makedirs(path)
+                print("[ALERT] Make Folder {}".format(path))
         except OSError as e:
             print("[Error] " + e)
             raise
@@ -87,7 +91,11 @@ class fileServer(threading.Thread):
         self.__makeFolder(경로)
         for peer in self.peers:
             peer.capture(when=dt.timestamp(), pt=경로)
-        
+    
+    def getStatus(self):
+        for peer in self.peers:
+            peer.requestSync()
+    
     def getPort(self):
         return self.server.getsockname()[1]
 
