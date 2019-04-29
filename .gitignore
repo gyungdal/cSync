@@ -209,5 +209,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+*.png
 
 # End of https://www.gitignore.io/api/node,pythong
