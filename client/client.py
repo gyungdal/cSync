@@ -1,3 +1,5 @@
+import sys
+sys.path.insert(0, '../')
 from communication import Communcation
 from json import loads, dumps
 from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData
