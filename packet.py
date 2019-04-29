@@ -112,8 +112,12 @@ class CaptureSetupData(BaseData):
         self.width = data["width"]
         self.height = data["height"]
         
+
 class PhotoData(BaseData):
-    def __init__(self, shotTime = datetime.now(), photo = b''):
+    '''
+    타임스탬프 값
+    '''
+    def __init__(self, shotTime = datetime.now().timestamp(), photo = b''):
         self.id = id
         self.shotTime = shotTime
         self.photo = photo
@@ -127,22 +131,22 @@ class PhotoData(BaseData):
     def toJson(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
-            "photo" : b64encode(self.photo)
+            "photo" : b64encode(self.photo.getvalue())
         })
     
-    def savePhoto(self, path, filename) -> bool:
+    def savePhoto(self, path: str, filename: str) -> bool:
         try:
             if not os.path.isdir(path) :
                 os.mkdir(path)
-            file = os.open(os.path.join(path, filename), 'wb')
-            file.write(self.photo)
+            file = open(os.path.join(path, filename), 'wb')
+            file.write(self.photo.getvalue())
             file.close()
             return True
         except Exception as e:
             print("[ERROR] " + e)
             return False
         
-    def loadJson(self, txt):
+    def loadJson(self, txt: str):
         data = loads(txt)
         self.shotTime = data["shotTime"]
         self.photo = b64decode(data["photo"])

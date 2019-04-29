@@ -1,16 +1,17 @@
 from json import dumps, loads
-from packet import IDData, Packet, PacketType, SyncData
+from ../packet import IDData, Packet, PacketType, SyncData
 from time import sleep
 from communication import Communcation
 
 class PeerThread(Communcation):
     def __init__(self, sck, id):
         Communcation.__init__(self, sck)
-        self.health = True
+        self.flag = True
         self.id = id 
 
     def stop(self):
-        self.health = False
+        self.flag = False
+        self.close()
         
     def setClientID(self):
         data = IDData(self.id)
@@ -30,5 +31,5 @@ class PeerThread(Communcation):
         return response
     
     def run(self):
-        while self.health:
+        while self.flag:
             sleep(1)

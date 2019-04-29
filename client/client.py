@@ -1,7 +1,7 @@
 from communication import Communcation
 from json import loads, dumps
 from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData
-
+from datetime import datetime
 import time
 import ntplib
 import io
@@ -41,10 +41,10 @@ class Client(Communcation):
         self.camera.resolution(config.width, config.height)
         self.camera.led = False
         while True:
-            if False : # 시간 지나면 작동하게
+            if config.shotTime >= datetime.now().timestamp() : # 시간 지나면 작동하게
                 stream = io.BytesIO()
                 self.camera.capture(stream, 'png')
-                result.setPhoto(stream.getvalue()) 
+                result.setPhoto(bytearray(stream.getvalue()))
                 #시간 데이터 저장
                 self.send_json(result.toJson())
                 break
