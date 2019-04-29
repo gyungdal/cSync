@@ -33,7 +33,7 @@ class PeerThread(Communcation):
         
     def requestSync(self):
         data = IDData(self.id)
-        packet = Packet(PacketType.SET_CLIENT_ID, data)
+        packet = Packet(PacketType.REQUEST_STATUS, data)
         data = packet.toJson()
         self.send_json(data)
         response = loads(self.recv_json())

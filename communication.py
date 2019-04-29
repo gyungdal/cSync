@@ -20,12 +20,16 @@ class Communcation(threading.Thread):
         while True:
             lenght = int(self.__recvall(128))
             if lenght > 0 :
-                return self.__recvall(lenght).decode('utf8')
+                return self.__recvall(lenght).decode('utf-8')
     
     def send_json(self, txt : str):
         lengthTxt = '{:0128d}'.format(len(txt))
-        self.socket.sendall(lengthTxt)
-        self.socket.sendall(txt)
+        print("[SEND] LENGTH : " + str(len(txt)))
+        print("[SEND] LENGTH HEADER : " + lengthTxt)
+        print("[SEND] TXT : " + txt)
+        
+        self.socket.sendall(bytearray(lengthTxt, 'utf-8'))
+        self.socket.sendall(bytearray(txt, 'utf-8'))
         
     def close(self):
         self.socket.close()

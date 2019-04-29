@@ -56,7 +56,7 @@ class Packet:
         return dumps({
             "version": self.version,
             "data": self.data.toJson(),
-            "type": self.type.names
+            "type": self.type.name
         })
 
     def loadJson(self, json):
