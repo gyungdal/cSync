@@ -37,12 +37,12 @@ class PeerThread(Communcation):
         data = packet.toJson()
         self.send_json(data)
         response = loads(self.recv_json())
-        data = loads(response['data'])
+        data = response['data']
         response = StatusData()
         response.loadJson(data)
         self.status = response.status
         self.delay = response.diff
-        print("[INFO] Client {} Status\n\tDelay : {}\nStatus : {}"
+        print("[INFO] Client {} Status\n\tㄴDelay : {}\n\tㄴStatus : {}"
               .format(self.id, self.delay, self.status))
     
     def capture(self, when : float, pt : str) :
@@ -100,6 +100,9 @@ class fileServer(threading.Thread):
         return self.server.getsockname()[1]
 
     def stop(self):
+        for item in self.peers:
+            item.stop()
+        self.server.close()
         self.runningFlag = False
     
     def run(self):
@@ -110,6 +113,3 @@ class fileServer(threading.Thread):
             peer.start()
             self.clientID = self.clientID + 1
             self.peers.append(peer)
-        for item in self.peers:
-            item.stop()
-        self.server.close()
