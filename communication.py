@@ -20,7 +20,10 @@ class Communcation(threading.Thread):
         while True:
             lenght = int(self.__recvall(128))
             if lenght > 0 :
-                return self.__recvall(lenght).decode('utf-8')
+                data = self.__recvall(lenght).decode('utf-8')
+                print("[RECV] LENGTH : " + str(lenght))
+                print("[RECV] DATA : " + data)
+                return data
     
     def send_json(self, txt : str):
         lengthTxt = '{:0128d}'.format(len(txt))
