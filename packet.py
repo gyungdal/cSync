@@ -64,16 +64,16 @@ class Packet:
         self.version = temp["version"]
         self.type = PacketType[temp["type"]]
         TABLE = {
-            PacketType.SET_CLIENT_ID.name : IDData(),
-            PacketType.REQUEST_ID.name : None,
-            PacketType.RESPONSE_ID.name : IDData(),
-            PacketType.REQUEST_STATUS.name : None,
-            PacketType.RESPONSE_STATUS.name : StatusData(),
-            PacketType.REQUEST_CAPTURE.name : CaptureSetupData(),
-            PacketType.RESPONSE_CAPTURE.name : PhotoData(),
-            PacketType.REQUEST_EXIT.name : None
+            PacketType.SET_CLIENT_ID : IDData(),
+            PacketType.REQUEST_ID : None,
+            PacketType.RESPONSE_ID : IDData(),
+            PacketType.REQUEST_STATUS : None,
+            PacketType.RESPONSE_STATUS : StatusData(),
+            PacketType.REQUEST_CAPTURE : CaptureSetupData(),
+            PacketType.RESPONSE_CAPTURE : PhotoData(),
+            PacketType.REQUEST_EXIT : None
         }
-        self.data = TABLE[temp['type']]
+        self.data = TABLE[self.type]
         if self.data != None:
             self.data.loadJson(temp["data"])
         
