@@ -52,9 +52,8 @@ class PeerThread(Communcation):
             data = packet.toJson()
             self.send_json(data)
             response = loads(self.recv_json())
-            data = loads(response['data'])
             photo = PhotoData()
-            photo.loadJson(data)
+            photo.loadJson(response['data'])
             photo.savePhoto(pt, "{}.png".format(self.id))
             print("[INFO] Save Image {}.png".format(self.id))
          
