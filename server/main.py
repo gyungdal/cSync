@@ -3,23 +3,26 @@ from utils import hereAmI
 from file_server import fileServer
 from time import sleep
 
+fileInstance = fileServer()
+ntpInstance = NTPServer()
             
-if __name__ == "__main__":
-    fileInstance = fileServer()
-    ntpInstance = NTPServer()
+def broadcast():
+    hereAmI(fileServerPort=fileInstance.getPort(), ntpPort=ntpInstance.getPort())
     
+if __name__ == "__main__":
     fileInstance.start()
     ntpInstance.start()
     
-    hereAmI(fileServerPort=fileInstance.getPort(), ntpPort=ntpInstance.getPort())
-    
+    broadcast()
     while True:
         try:
-            value = input("CAPTURE?\ny : Capture\ns : status")
-            if value == 'y' :
-                fileInstance.capture()
-            elif value == 's' :
-                fileInstance.getStatus()
+            value = input("CAPTURE?\nc : Capture\ns : status\nb : Broadcast")
+            HANDLER_TABLE = {
+                'c' : fileInstance.capture,
+                'b' : broadcast,
+                's' : fileInstance.getStatus
+            }
+            HANDLER_TABLE[value]()
         except KeyboardInterrupt:
             print("Exiting...")
             ntpInstance.stop()
