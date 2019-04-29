@@ -123,6 +123,7 @@ class PhotoData(BaseData):
         
     def getShotTime(self) -> float:
         return self.shotTime
+    
     def setPhoto(self, photo: bytearray):
         self.photo = photo
     
@@ -132,9 +133,14 @@ class PhotoData(BaseData):
     def toJson(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
-            "photo" : b64encode(self.photo)
+            "photo" : b64encode(self.photo).decode('utf-8')
         })
     
+    def loadJson(self, txt: str):
+        data = loads(txt)
+        self.shotTime = data["shotTime"]
+        self.photo = b64decode(data["photo"])
+        
     def savePhoto(self, path: str, filename: str) -> bool:
         try:
             if not os.path.isdir(path) :
@@ -146,11 +152,6 @@ class PhotoData(BaseData):
         except Exception as e:
             print("[ERROR] " + e)
             return False
-        
-    def loadJson(self, txt: str):
-        data = loads(txt)
-        self.shotTime = data["shotTime"]
-        self.photo = b64decode(data["photo"])
         
 class StatusData(BaseData):
     def __init__(self, diff = 0, status = CameraStatus.DISCONNECTED):

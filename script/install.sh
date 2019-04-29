@@ -30,6 +30,7 @@ update-alternatives --config python
 sudo pip3.7 install --upgrade pip
 sudo pip3.7 install picamera
 sudo pip3.7 install ntplib
+sudo pip3.7 install RPi.GPIO
 
 sudo echo 'network={ \
     ssid="iptime" \
