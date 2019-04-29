@@ -18,7 +18,7 @@ class Communcation(threading.Thread):
     
     def recv_json(self) -> str:
         while True:
-            lenght = int(self.socket.recv(128))
+            lenght = int(self.__recvall(128))
             if lenght > 0 :
                 return self.__recvall(lenght).decode('utf8')
     
