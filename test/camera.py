@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 stream = BytesIO()
 camera = PiCamera()
-camera.resolution = (3240, 2494)
+camera.resolution = (3280, 2464)
 # Camera warm-up time
 time.sleep(5)
 
