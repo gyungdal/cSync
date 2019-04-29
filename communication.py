@@ -22,7 +22,7 @@ class Communcation(threading.Thread):
             if lenght > 0 :
                 data = self.__recvall(lenght).decode('utf-8')
                 print("[RECV] LENGTH : " + str(lenght))
-                print("[RECV] DATA : " + data)
+                #print("[RECV] DATA : " + data)
                 return data
     
     def send_json(self, txt : str):

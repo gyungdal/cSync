@@ -37,6 +37,7 @@ class PeerThread(Communcation):
         data = packet.toJson()
         self.send_json(data)
         response = loads(self.recv_json())
+        print("[RECV] Packet Type : " + response.type)
         data = response['data']
         response = StatusData()
         response.loadJson(data)
@@ -52,6 +53,7 @@ class PeerThread(Communcation):
             data = packet.toJson()
             self.send_json(data)
             response = loads(self.recv_json())
+            print("[RECV] Packet Type : " + response.type)
             photo = PhotoData()
             photo.loadJson(response['data'])
             photo.savePhoto(pt, "{}.png".format(self.id))
