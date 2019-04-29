@@ -55,7 +55,7 @@ class Client(Communcation):
         self.camera.framerate = 15
         self.camera.led = False
         while True:
-            if config.shotTime >= datetime.now().timestamp() : # 시간 지나면 작동하게
+            if config.shotTime <= datetime.now().timestamp() : # 시간 지나면 작동하게
                 stream = io.BytesIO()
                 self.camera.capture(stream, 'png')
                 result.setPhoto(bytearray(stream.getvalue()))

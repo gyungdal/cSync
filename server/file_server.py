@@ -76,11 +76,11 @@ class fileServer(threading.Thread):
         self.clientID = 0
         print("[INFO] File Server Start\n\tㄴ{}".format(self.server.getsockname()))
         
-    def __makeFolder(self, path):
+    def __makeFolder(self, pt):
         try:
-            if not path.isdir(path):
-                makedirs(path)
-                print("[ALERT] Make Folder {}".format(path))
+            if not path.isdir(pt):
+                makedirs(pt)
+                print("[ALERT] Make Folder {}".format(pt))
         except OSError as e:
             print("[Error] " + e)
             raise
