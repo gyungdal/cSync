@@ -22,7 +22,8 @@ if __name__ == "__main__":
                 'b' : broadcast,
                 's' : fileInstance.getStatus
             }
-            HANDLER_TABLE[value]()
+            if value in HANDLER_TABLE.keys():
+                HANDLER_TABLE[value]()
         except KeyboardInterrupt:
             print("Exiting...")
             ntpInstance.stop()
