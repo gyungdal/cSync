@@ -74,8 +74,8 @@ class Client(Communcation):
         while self.flag:
             try:
                 self.response = loads(self.recv_json())
-                if self.response["type"].name in HANDLER_TABLE.keys() :
-                    HANDLER_TABLE[self.response["type"].name]()
+                if self.response["type"] in HANDLER_TABLE.keys() :
+                    HANDLER_TABLE[self.response["type"]]()
             except Exception as e:
                 print("[ERROR] Thread Exception" + str(e))
         
