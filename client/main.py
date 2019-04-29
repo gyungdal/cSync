@@ -24,16 +24,22 @@ def waitServer():
         print("\tㄴ Description -> " + e)
         return None
     
+comm = None
+def startThread():
+    global comm
+    comm = Client(config)
+    comm.start()
+    
 if __name__ == "__main__":
     try: 
-        comm = None
         while True:
             config = waitServer()
             print(config)
             if comm != None:
                 if not comm.isAlive():
-                    comm = Client(config)
-                    comm.start()
+                    startThread()
+            else:
+                startThread()
     except Exception as ex: # 에러 종류
         print('[ERROR] : ', ex)
     finally:
