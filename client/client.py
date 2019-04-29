@@ -1,5 +1,6 @@
 import sys
-sys.path.insert(0, '../')
+import os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from communication import Communcation
 from json import loads, dumps
 from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData, CameraStatus

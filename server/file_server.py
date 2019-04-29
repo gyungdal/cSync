@@ -5,10 +5,9 @@ import threading
 import sys
 import json
 import datetime
-
-sys.path.insert(0, '../')
-
 from os import path, makedirs
+sys.path.append(path.dirname(path.abspath(path.dirname(__file__))))
+
 from time import sleep
 from json import dumps, loads
 from packet import IDData, Packet, PacketType, CameraStatus, PhotoData, CaptureSetupData, StatusData
