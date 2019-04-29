@@ -32,9 +32,15 @@ sudo pip3.7 install picamera
 sudo pip3.7 install ntplib
 sudo pip3.7 install RPi.GPIO
 
-sudo echo 'network={ \
-    ssid="iptime" \
-    key_mgmt=NONE \
-}' >> /etc/wpa_supplicant/wpa_supplicant.conf
+sudo echo '\ngpu_mem=256' >> /boot/config.txt
+
+sudo echo '
+country=US
+
+network={
+	ssid="iptime"
+	psk="12341234"
+}
+' >> /etc/wpa_supplicant/wpa_supplicant.conf
 
 sudo reboot

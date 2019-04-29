@@ -16,6 +16,7 @@ from communication import Communcation
 class PeerThread(Communcation):
     def __init__(self, sck, id):
         Communcation.__init__(self, sck)
+        self.socket = sck
         self.flag = True
         self.id = id 
         self.delay = 0
@@ -23,7 +24,8 @@ class PeerThread(Communcation):
 
     def stop(self):
         self.flag = False
-        self.close()
+        self.socket.shutdown(socket.SHUT_RDWR)
+        self.socket.close()
         
     def setClientID(self):
         data = IDData(self.id)
@@ -71,6 +73,7 @@ class fileServer(threading.Thread):
     def __init__(self):
         threading.Thread.__init__(self)    
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.server.bind(('0.0.0.0', 0))
         self.server.listen(128)
         self.peers = []
@@ -104,6 +107,7 @@ class fileServer(threading.Thread):
     def stop(self):
         for item in self.peers:
             item.stop()
+        self.server.shutdown(socket.SHUT_RDWR)
         self.server.close()
         self.runningFlag = False
     
