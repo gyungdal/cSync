@@ -9,6 +9,7 @@ import time
 import ntplib
 import io
 import socket
+import picamera
 
 class Client(Communcation):
     def __init__(self, config = {}):
