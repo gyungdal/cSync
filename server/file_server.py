@@ -101,14 +101,14 @@ class fileServer(threading.Thread):
         경로 = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
         self.__makeFolder(경로)
         
-        loop = asyncio.get_event_loop()
-        tasks =  [
-            asyncio.ensure_future(peer.capture(when=dt.timestamp(), pt=경로)) 
-            for peer in self.peers
-        ]
-        print(tasks)
-        loop.run_until_complete(asyncio.wait(tasks))  
-        loop.close()
+        with asyncio.get_event_loop as loop:    
+            tasks = [
+                asyncio.ensure_future(peer.capture(when=dt.timestamp(), pt=경로)) 
+                for peer in self.peers
+            ]
+            print(tasks)
+            loop.run_until_complete(asyncio.wait(tasks))  
+            loop.close()
             
             
     
