@@ -90,16 +90,20 @@ class IDData(BaseData):
         self.id = loads(txt)["id"]
         
 class CaptureSetupData(BaseData):
-    def __init__(self, width = 3280, height = 2464, shotTime = datetime.now()):
+    def __init__(self, width = 3280, height = 2464, shotTime = datetime.now(), pt = '', name=''):
         self.width = width
         self.height = height
         self.shotTime = shotTime
+        self.pt = pt
+        self.name = name
         
     def toJson(self) -> str:
         return dumps({
             "width" : self.width,
             "height" : self.height,
-            "shotTime" : self.shotTime
+            "shotTime" : self.shotTime,
+            "pt" : self.pt,
+            "name" : self.name
         })
         
     def loadJson(self, txt):
@@ -107,16 +111,21 @@ class CaptureSetupData(BaseData):
         self.shotTime = data["shotTime"]
         self.width = data["width"]
         self.height = data["height"]
+        self.pt = data["pt"]
+        self.name = data["name"]
         
 
 class PhotoData(BaseData):
     '''
     타임스탬프 값
     '''
-    def __init__(self, shotTime:float = datetime.now().timestamp(), photo:bytearray = b''):
+    def __init__(self, shotTime:float = datetime.now().timestamp(), 
+                 photo:bytearray = b'', pt = '', name=''):
         self.id = id
         self.shotTime = shotTime
         self.photo = photo
+        self.name = name
+        self.pt = pt
         
     def setShotTime(self, shotTime : float):
         self.shotTime = shotTime
@@ -133,19 +142,23 @@ class PhotoData(BaseData):
     def toJson(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
-            "photo" : b64encode(self.photo).decode('utf-8')
+            "photo" : b64encode(self.photo).decode('utf-8'),
+            "pt" : self.pt,
+            "name" : self.name
         })
     
     def loadJson(self, txt: str):
         data = loads(txt)
         self.shotTime = data["shotTime"]
         self.photo = b64decode(data["photo"])
+        self.name = data['name']
+        self.pt = data['pt']
         
-    def savePhoto(self, path: str, filename: str) -> bool:
+    def savePhoto(self) -> bool:
         try:
-            if not os.path.isdir(path) :
-                os.mkdir(path)
-            file = open(os.path.join(path, filename), 'wb')
+            if not os.path.isdir(self.pt) :
+                os.mkdir(self.pt)
+            file = open(os.path.join(self.pt, self.name), 'wb')
             file.write(self.photo)
             file.close()
             return True
