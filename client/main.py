@@ -7,6 +7,9 @@ from client import Client
 
 # https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
+DEBUG = False
+comm = None
+
 def waitServer():
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -20,28 +23,31 @@ def waitServer():
         else:
             return None
     except Exception as e:
-        print("[ERROR] : Server broadcast data crash")
-        print("\tㄴ Description -> " + e)
+        if DEBUG:
+            print("[ERROR] : Server broadcast data crash")
+            print("\tㄴ Description -> " + e)
         return None
     
-comm = None
+
 def startThread():
     global comm
-    comm = Client(config)
+    comm = Client(config, debug=DEBUG)
     comm.start()
     
 if __name__ == "__main__":
     try: 
         while True:
             config = waitServer()
-            print(config)
+            if DEBUG:
+                print(config)
             if comm != None:
                 if not comm.isAlive():
                     startThread()
             else:
                 startThread()
     except Exception as ex: # 에러 종류
-        print('[ERROR] : ', ex)
+        if DEBUG:
+            print('[ERROR] : ', ex)
     finally:
         if comm != None:
             comm.stop()

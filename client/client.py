@@ -12,16 +12,17 @@ import socket
 import picamera
 
 class Client(Communcation):
-    def __init__(self, config = {}):
+    def __init__(self, config = {}, debug=False):
         sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sck.connect((config['ip'], config['port']['file']))
-        Communcation.__init__(self, sck)
+        Communcation.__init__(self, sck, debug=debug)
         self.flag = True
         self.id = -1
         self.ntp = ntplib.NTPClient()
         self.response = None
         self.camera = picamera.PiCamera()
         self.config = config
+        self.debug = debug
         
     def stop(self):
         self.flag = False
@@ -79,6 +80,7 @@ class Client(Communcation):
                 if self.response["type"] in HANDLER_TABLE.keys() :
                     HANDLER_TABLE[self.response["type"]]()
             except Exception as e:
-                print("[ERROR] Thread Exception" + str(e))
+                if self.debug:
+                    print("[ERROR] Thread Exception" + str(e))
                 self.stop()
         
