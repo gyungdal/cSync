@@ -31,6 +31,7 @@ sudo pip3.7 install --upgrade pip
 sudo pip3.7 install picamera
 sudo pip3.7 install ntplib
 sudo pip3.7 install RPi.GPIO
+sudo pip3.7 install asyncio
 
 sudo echo '\ngpu_mem=256' >> /boot/config.txt
 
@@ -44,3 +45,5 @@ network={
 ' >> /etc/wpa_supplicant/wpa_supplicant.conf
 
 sudo reboot
+
+nohup /usr/bin/python3.7 /home/pi/cSync/client/main.py 1> /dev/null 2>&1 &

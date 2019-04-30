@@ -8,6 +8,7 @@ import datetime
 from os import path, makedirs
 sys.path.append(path.dirname(path.abspath(path.dirname(__file__))))
 
+import asyncio
 from time import sleep
 from json import dumps, loads
 from packet import IDData, Packet, PacketType, CameraStatus, PhotoData, CaptureSetupData, StatusData
@@ -20,6 +21,7 @@ class PeerThread(Communcation):
         self.id = id 
         self.delay = 0
         self.status = CameraStatus.DISCONNECTED
+        self.response = None
 
     def stop(self):
         self.flag = False
@@ -42,29 +44,40 @@ class PeerThread(Communcation):
         data = response['data']
         response = StatusData()
         response.loadJson(data)
-        self.status = response.status
-        self.delay = response.diff
-        print("[INFO] Client {} Status\n\tㄴDelay : {}\n\tㄴStatus : {}"
-              .format(self.id, self.delay, self.status))
     
-    def capture(self, when : float, pt : str) :
+    async def capture(self, when : float, pt : str) :
         if self.status == CameraStatus.OK:
             data = CaptureSetupData(shotTime = when + self.delay)
             packet = Packet(PacketType.REQUEST_CAPTURE, data)
             data = packet.toJson()
             self.send_json(data)
-            response = loads(self.recv_json())
-            print("[RECV] Packet Type : " + response["type"])
-            photo = PhotoData()
-            photo.loadJson(response['data'])
-            photo.savePhoto(pt, "{}.png".format(self.id))
-            print("[INFO] Save Image {}.png".format(self.id))
          
+    def __handle_status(self):
+        self.response = StatusData()
+        self.response.loadJson(self.response['data'])
+        self.status = self.response.status
+        self.delay = self.response.diff
+        print("[INFO] Client {} Status\n\tㄴDelay : {}\n\tㄴStatus : {}"
+              .format(self.id, self.delay, self.status))
+    
+    def __handle_photo(self):
+        photo = PhotoData()
+        photo.loadJson(self.response['data'])
+        photo.savePhoto(pt, "{}.png".format(self.id))
+        print("[INFO] Save Image {}.png".format(self.id))
+    
     def run(self):
         self.setClientID()
         self.requestSync()
         while self.flag:
-            sleep(1)
+            self.response = loads(self.recv_json())
+            TABLE = {
+                PacketType.RESPONSE_STATUS.name : self.__handle_status,
+                PacketType.RESPONSE_CAPTURE.name : self.__handle_photo
+            }
+            if self.response['type'] in TABLE.keys() :
+                print("[RECV] Packet Type : " + self.response["type"])
+                TABLE[self.response['type']]()
             
 # TODO : 패킷들 정의해서 일반 적인 방식으로 보내도록
 class fileServer(threading.Thread):
@@ -92,8 +105,17 @@ class fileServer(threading.Thread):
         dt = datetime.datetime.now() + datetime.timedelta(seconds=5)
         경로 = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
         self.__makeFolder(경로)
-        for peer in self.peers:
-            peer.capture(when=dt.timestamp(), pt=경로)
+        
+        loop = asyncio.get_event_loop()
+        tasks =  [
+            asyncio.ensure_future(peer.capture(when=dt.timestamp(), pt=경로)) 
+            for peer in self.peers
+        ]
+        print(tasks)
+        loop.run_until_complete(asyncio.wait(tasks))  
+        loop.close()
+            
+            
     
     def getStatus(self):
         for peer in self.peers:
