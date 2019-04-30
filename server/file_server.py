@@ -16,7 +16,6 @@ from communication import Communcation
 class PeerThread(Communcation):
     def __init__(self, sck, id):
         Communcation.__init__(self, sck)
-        self.socket = sck
         self.flag = True
         self.id = id 
         self.delay = 0
@@ -24,8 +23,7 @@ class PeerThread(Communcation):
 
     def stop(self):
         self.flag = False
-        self.socket.shutdown(socket.SHUT_RDWR)
-        self.socket.close()
+        self.close()
         
     def setClientID(self):
         data = IDData(self.id)

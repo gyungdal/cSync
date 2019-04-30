@@ -35,6 +35,7 @@ class Communcation(threading.Thread):
         self.socket.sendall(bytearray(txt, 'utf-8'))
         
     def close(self):
+        self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
         
     def run(self):
