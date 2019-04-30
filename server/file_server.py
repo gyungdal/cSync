@@ -97,18 +97,19 @@ class fileServer(threading.Thread):
             raise
             
     def capture(self):
-        dt = datetime.datetime.now() + datetime.timedelta(seconds=5)
-        경로 = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
-        self.__makeFolder(경로)
-        
-        with asyncio.get_event_loop as loop:    
-            tasks = [
-                asyncio.ensure_future(peer.capture(when=dt.timestamp(), pt=경로)) 
-                for peer in self.peers
-            ]
-            print(tasks)
-            loop.run_until_complete(asyncio.wait(tasks))  
-            loop.close()
+        if len(self.peers) != 0 :
+            dt = datetime.datetime.now() + datetime.timedelta(seconds=5)
+            경로 = "{}{}{}_{}{}{}_{}".format(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second, dt.microsecond)
+            self.__makeFolder(경로)
+            
+            with asyncio.get_event_loop as loop:    
+                tasks = [
+                    asyncio.ensure_future(peer.capture(when=dt.timestamp(), pt=경로)) 
+                    for peer in self.peers
+                ]
+                print(tasks)
+                loop.run_until_complete(asyncio.wait(tasks))  
+                loop.close()
             
             
     
