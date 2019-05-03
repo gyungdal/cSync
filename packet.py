@@ -1,8 +1,9 @@
 import enum
+import os
 
 from pickle import dumps, loads
-import os
 from datetime import datetime
+from gzip import compress, decompress
 
 class PacketType(enum.Enum):
     NONE = enum.auto()
@@ -141,7 +142,7 @@ class PhotoData(BaseData):
     def toPickle(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
-            "photo" : self.photo,
+            "photo" : compress(self.photo, compresslevel=1),
             "pt" : self.pt,
             "name" : self.name
         })
@@ -149,7 +150,7 @@ class PhotoData(BaseData):
     def loadPickle(self, txt: str):
         data = loads(txt)
         self.shotTime = data["shotTime"]
-        self.photo = data["photo"]
+        self.photo = decompress(data["photo"])
         self.name = data['name']
         self.pt = data['pt']
         
