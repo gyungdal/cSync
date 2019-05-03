@@ -16,7 +16,7 @@ def waitServer():
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(('', 8000))
         msg, _ = s.recvfrom(1024)  # 브로드케스트 서버의 전송을 기다린다.
-        recv = pickle.loads(msg.decode())
+        recv = pickle.loads(msg)
         s.close()
         if recv["service"] == "cSync":
             return recv
