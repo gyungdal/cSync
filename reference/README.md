@@ -1,6 +1,6 @@
-# numpy_comm: numpy direct comm. 
+numpy_comm: numpy direct comm. 
 
-** Converting immgproc image into a numpy array: **
+**Converting immgproc image into a numpy array:**
 
 ```python
 import imgproc as ip
