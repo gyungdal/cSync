@@ -48,8 +48,12 @@ class Client(Communcation):
         data.status = CameraStatus.OK
         packet = Packet(PacketType.RESPONSE_STATUS, data)
         self.sendPickle(packet.toPickle())
+        if self.debug : 
+            print("[STATUS] Status : {}\tDIFF = {}".format(data.status, data.diff))
         
     def __response_capture(self):
+        if self.debug : 
+            print("[CAPTURE] Start : {}".format(datetime.now().timestamp()))
         config = CaptureSetupData()
         config.loadPickle(self.response["data"])
         self.camera.resolution = (config.width, config.height)
@@ -63,8 +67,12 @@ class Client(Communcation):
                 result.setPhoto(bytearray(stream.getvalue()))
                 break
         #시간 데이터 저장
+        if self.debug : 
+            print("[CAPTURE] Capture Time : {}".format(datetime.now().timestamp()))
         packet = Packet(PacketType.RESPONSE_CAPTURE, result)
         self.sendPickle(packet.toPickle())
+        if self.debug : 
+            print("[CAPTURE] Done : {}".format(datetime.now().timestamp()))
 
     def run(self):
         HANDLER_TABLE = {

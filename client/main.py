@@ -7,7 +7,7 @@ from client import Client
 
 # https://picamera.readthedocs.io/en/release-1.13/recipes1.html
 
-DEBUG = False
+DEBUG = True
 comm = None
 
 def waitServer():
