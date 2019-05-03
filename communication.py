@@ -17,7 +17,7 @@ class Communcation(threading.Thread):
             count -= len(newbuf)
         return buf
     
-    def recv_json(self) -> bytearray:
+    def recvPickle(self) -> bytearray:
         while True:
             lenght = int(str(self.__recvall(128), 'utf-8'))
             if lenght > 0 :
@@ -27,7 +27,7 @@ class Communcation(threading.Thread):
                 #print("[RECV] DATA : " + data)
                 return data
     
-    def send_json(self, txt : bytearray):
+    def sendPickle(self, txt : bytearray):
         lengthTxt = '{:0128d}'.format(len(txt))
         if self.debug:
             print("[SEND] LENGTH : " + str(len(txt)))

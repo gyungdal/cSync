@@ -39,7 +39,7 @@ class Client(Communcation):
     def __response_id(self):
         data = IDData(self.id)
         packet = Packet(PacketType.RESPONSE_ID, data)
-        self.send_json(packet.toJson())
+        self.sendPickle(packet.toPickle())
     
     def __response_status(self):
         data = StatusData()
@@ -47,11 +47,11 @@ class Client(Communcation):
         data.diff = response.delay
         data.status = CameraStatus.OK
         packet = Packet(PacketType.RESPONSE_STATUS, data)
-        self.send_json(packet.toJson())
+        self.sendPickle(packet.toPickle())
         
     def __response_capture(self):
         config = CaptureSetupData()
-        config.loadJson(self.response["data"])
+        config.loadPickle(self.response["data"])
         self.camera.resolution = (config.width, config.height)
         self.camera.framerate = 15
         self.camera.led = False
@@ -64,7 +64,7 @@ class Client(Communcation):
                 break
         #시간 데이터 저장
         packet = Packet(PacketType.RESPONSE_CAPTURE, result)
-        self.send_json(packet.toJson())
+        self.sendPickle(packet.toPickle())
 
     def run(self):
         HANDLER_TABLE = {
@@ -76,7 +76,7 @@ class Client(Communcation):
         }
         while self.flag:
             try:
-                self.response = loads(self.recv_json())
+                self.response = loads(self.recvPickle())
                 if self.response["type"] in HANDLER_TABLE.keys() :
                     HANDLER_TABLE[self.response["type"]]()
             except Exception as e:

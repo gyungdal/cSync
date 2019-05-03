@@ -3,7 +3,7 @@ import select
 import socket
 import threading
 import sys
-import json
+import Pickle
 import datetime
 from os import path, makedirs
 sys.path.append(path.dirname(path.abspath(path.dirname(__file__))))
@@ -30,26 +30,26 @@ class PeerThread(Communcation):
     def setClientID(self):
         data = IDData(self.id)
         packet = Packet(PacketType.SET_CLIENT_ID, data)
-        data = packet.toJson()
-        self.send_json(data)
+        data = packet.toPickle()
+        self.sendPickle(data)
         
     def requestSync(self):
         data = IDData(self.id)
         packet = Packet(PacketType.REQUEST_STATUS, data)
-        data = packet.toJson()
-        self.send_json(data)
+        data = packet.toPickle()
+        self.sendPickle(data)
     
     async def capture(self, when : float, pt : str) :
         if self.status == CameraStatus.OK:
             data = CaptureSetupData(shotTime = when + self.delay, 
                                     pt=pt, name="{}.png".format(self.id))
             packet = Packet(PacketType.REQUEST_CAPTURE, data)
-            data = packet.toJson()
-            self.send_json(data)
+            data = packet.toPickle()
+            self.sendPickle(data)
          
     def __handle_status(self):
         response = StatusData()
-        response.loadJson(self.response['data'])
+        response.loadPickle(self.response['data'])
         self.status = response.status
         self.delay = response.diff
         print("[INFO] Client {} Status\n\tㄴDelay : {}\n\tㄴStatus : {}"
@@ -57,7 +57,7 @@ class PeerThread(Communcation):
     
     def __handle_photo(self):
         photo = PhotoData()
-        photo.loadJson(self.response['data'])
+        photo.loadPickle(self.response['data'])
         photo.savePhoto()
         print("[INFO] Save Image {}.png".format(self.id))
     
@@ -65,7 +65,7 @@ class PeerThread(Communcation):
         self.setClientID()
         self.requestSync()
         while self.flag:
-            self.response = loads(self.recv_json())
+            self.response = loads(self.recvPickle())
             TABLE = {
                 PacketType.RESPONSE_STATUS.name : self.__handle_status,
                 PacketType.RESPONSE_CAPTURE.name : self.__handle_photo

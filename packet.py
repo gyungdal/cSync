@@ -27,10 +27,10 @@ class CameraStatus(enum.Enum):
     DISCONNECTED = enum.auto()
     
 class BaseData:
-    def toJson(self) -> str:
+    def toPickle(self) -> str:
         pass
 
-    def loadJson(self, txt):
+    def loadPickle(self, txt):
         pass
     
 class Packet:
@@ -51,15 +51,15 @@ class Packet:
     def getData(self):
         return self.data
     
-    def toJson(self) -> str:
+    def toPickle(self) -> str:
         return dumps({
             "version": self.version,
-            "data": self.data.toJson(),
+            "data": self.data.toPickle(),
             "type": self.type.name
         })
 
-    def loadJson(self, json):
-        temp = loads(json)
+    def loadPickle(self, Pickle):
+        temp = loads(Pickle)
         self.version = temp["version"]
         self.type = PacketType[temp["type"]]
         TABLE = {
@@ -74,18 +74,18 @@ class Packet:
         }
         self.data = TABLE[self.type]
         if self.data != None:
-            self.data.loadJson(temp["data"])
+            self.data.loadPickle(temp["data"])
         
 class IDData(BaseData):
     def __init__(self, id = 0):
         self.id = id
         
-    def toJson(self) -> str:
+    def toPickle(self) -> str:
         return dumps({
             "id" : self.id
         })
         
-    def loadJson(self, txt):
+    def loadPickle(self, txt):
         self.id = loads(txt)["id"]
         
 class CaptureSetupData(BaseData):
@@ -96,7 +96,7 @@ class CaptureSetupData(BaseData):
         self.pt = pt
         self.name = name
         
-    def toJson(self) -> str:
+    def toPickle(self) -> str:
         return dumps({
             "width" : self.width,
             "height" : self.height,
@@ -105,7 +105,7 @@ class CaptureSetupData(BaseData):
             "name" : self.name
         })
         
-    def loadJson(self, txt):
+    def loadPickle(self, txt):
         data = loads(txt)
         self.shotTime = data["shotTime"]
         self.width = data["width"]
@@ -138,7 +138,7 @@ class PhotoData(BaseData):
     def getPhoto(self) -> bytearray:
         return self.photo
     
-    def toJson(self) -> str:
+    def toPickle(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
             "photo" : self.photo,
@@ -146,7 +146,7 @@ class PhotoData(BaseData):
             "name" : self.name
         })
     
-    def loadJson(self, txt: str):
+    def loadPickle(self, txt: str):
         data = loads(txt)
         self.shotTime = data["shotTime"]
         self.photo = data["photo"]
@@ -170,13 +170,13 @@ class StatusData(BaseData):
         self.diff = diff
         self.status = status
         
-    def toJson(self) -> str:
+    def toPickle(self) -> str:
         return dumps({
             "diff" : self.diff,
             "status" : self.status.name
         })
         
-    def loadJson(self, txt):
+    def loadPickle(self, txt):
         data = loads(txt)
         self.diff = data["diff"]
         self.status = CameraStatus[data["status"]]
