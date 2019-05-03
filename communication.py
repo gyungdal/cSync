@@ -19,7 +19,7 @@ class Communcation(threading.Thread):
     
     def recv_json(self) -> bytearray:
         while True:
-            lenght = int(self.__recvall(128))
+            lenght = int(str(self.__recvall(128), 'utf-8'))
             if lenght > 0 :
                 data = self.__recvall(lenght)
                 if self.debug:
@@ -34,7 +34,7 @@ class Communcation(threading.Thread):
             print("[SEND] LENGTH HEADER : " + lengthTxt)
             print("[SEND] TXT : " + txt)
         
-        self.socket.sendall(bytearray(lengthTxt))
+        self.socket.sendall(bytearray(lengthTxt, 'utf-8'))
         self.socket.sendall(txt)
         
     def close(self):

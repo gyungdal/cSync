@@ -28,5 +28,5 @@ def hereAmI(fileServerPort : int, ntpPort : int):
         }
     })
     print(serverConfig)
-    broadcast.sendto(bytearray(serverConfig.encode()), ("192.168.0.255", 8000))
+    broadcast.sendto(serverConfig, ("192.168.0.255", 8000))
     broadcast.close()
