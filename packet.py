@@ -1,8 +1,7 @@
 import enum
 
-from json import dumps, loads
+from pickle import dumps, loads
 import os
-from base64 import b64encode, b64decode
 from datetime import datetime
 
 class PacketType(enum.Enum):
@@ -142,7 +141,7 @@ class PhotoData(BaseData):
     def toJson(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
-            "photo" : b64encode(self.photo).decode('utf-8'),
+            "photo" : self.photo,
             "pt" : self.pt,
             "name" : self.name
         })
@@ -150,7 +149,7 @@ class PhotoData(BaseData):
     def loadJson(self, txt: str):
         data = loads(txt)
         self.shotTime = data["shotTime"]
-        self.photo = b64decode(data["photo"])
+        self.photo = data["photo"]
         self.name = data['name']
         self.pt = data['pt']
         
