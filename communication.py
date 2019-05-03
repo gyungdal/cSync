@@ -32,7 +32,6 @@ class Communcation(threading.Thread):
         if self.debug:
             print("[SEND] LENGTH : " + str(len(txt)))
             print("[SEND] LENGTH HEADER : " + lengthTxt)
-            print("[SEND] TXT : " + txt)
         
         self.socket.sendall(bytearray(lengthTxt, 'utf-8'))
         self.socket.sendall(txt)
