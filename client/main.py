@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 import socket
-import json
+import pickle
 import time
 
 from client import Client
@@ -16,7 +16,7 @@ def waitServer():
         s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         s.bind(('', 8000))
         msg, _ = s.recvfrom(1024)  # 브로드케스트 서버의 전송을 기다린다.
-        recv = json.loads(msg.decode())
+        recv = pickle.loads(msg.decode())
         s.close()
         if recv["service"] == "cSync":
             return recv

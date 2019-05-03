@@ -1,5 +1,5 @@
 import socket 
-import json
+import pickle
 
 def getIp():
     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -19,7 +19,7 @@ def hereAmI(fileServerPort : int, ntpPort : int):
     broadcast.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
     broadcast.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     broadcast.setsockopt(socket.IPPROTO_IP, socket.IP_MULTICAST_TTL, 2)
-    serverConfig = json.dumps({
+    serverConfig = pickle.dumps({
         "service": "cSync",
         "ip": getIp(),
         "port" : {

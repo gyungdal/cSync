@@ -10,7 +10,7 @@ sys.path.append(path.dirname(path.abspath(path.dirname(__file__))))
 
 import asyncio
 from time import sleep
-from json import dumps, loads
+from pickle import dumps, loads
 from packet import IDData, Packet, PacketType, CameraStatus, PhotoData, CaptureSetupData, StatusData
 from communication import Communcation
 

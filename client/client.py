@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 from communication import Communcation
-from json import loads, dumps
+from pickle import loads, dumps
 from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData, CameraStatus
 from datetime import datetime
 import time
