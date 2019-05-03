@@ -68,7 +68,9 @@ class Client(Communcation):
                 break
         #시간 데이터 저장
         if self.debug : 
+            print("[CAPTURE] Request Time : {}".format(config.shotTime))
             print("[CAPTURE] Capture Time : {}".format(datetime.now().timestamp()))
+            
         packet = Packet(PacketType.RESPONSE_CAPTURE, result)
         self.sendPickle(packet.toPickle())
         if self.debug : 
