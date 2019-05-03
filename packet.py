@@ -35,7 +35,7 @@ class BaseData:
     
 class Packet:
     def __init__(self, tp : PacketType, data):
-        self.version = '20190430_dev'
+        self.version = '20190502_dev'
         self.type = tp
         self.data = data
 
