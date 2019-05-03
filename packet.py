@@ -142,7 +142,7 @@ class PhotoData(BaseData):
     def toPickle(self) -> str:
         return dumps({
             "shotTime" : self.shotTime,
-            "photo" : compress(self.photo, compresslevel=1),
+            "photo" : compress(self.photo, compresslevel=9),
             "pt" : self.pt,
             "name" : self.name
         })
