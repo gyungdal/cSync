@@ -1,0 +1,9 @@
+{ 
+"scanid"	:  "1001",
+"normaldir" :  "c:\\3dscan\\1001\\normal\\",
+"projectdir" : "c:\\3dscan\\1001\\projection\\",
+"savedir" : 	 "c:\\3dscan\\processed\\",
+"SKETCHFAB_DESCRIPTION" : "My scanned model",
+"SKETCHFAB_ENABLE" : "1"
+}
+ 
