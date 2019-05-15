@@ -7,4 +7,4 @@ install:
   - pip install -r requirements.txt
 # command to run tests
 script:
-  - echo 'e' > python server/main.py
+  - echo 'e' | python server/main.py
