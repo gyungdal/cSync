@@ -125,7 +125,6 @@ class fileServer(threading.Thread):
     def stop(self):
         for item in self.peers:
             item.stop()
-        self.server.shutdown(socket.SHUT_RDWR)
         self.server.close()
         self.runningFlag = False
     
