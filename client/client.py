@@ -10,6 +10,7 @@ import ntplib
 import io
 import socket
 import picamera
+import RPi.GPIO as GPIO
 
 class Client(Communcation):
     def __init__(self, config = {}, debug=False):
@@ -23,11 +24,20 @@ class Client(Communcation):
         self.camera = picamera.PiCamera()
         self.config = config
         self.debug = debug
-        
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(5, GPIO.OUT)
+        GPIO.setup(6, GPIO.OUT)
+        self.setGPIO(True)
+
+    def setGPIO(self, status : bool):
+        GPIO.output(5, status)
+        GPIO.output(6, status)
+             
     def stop(self):
         self.flag = False
         self.camera.close()
         self.close()
+        GPIO.cleanup()
         
         
     def setID(self):
@@ -61,11 +71,14 @@ class Client(Communcation):
         self.camera.led = False
         stream = io.BytesIO()
         result = PhotoData(name=config.name,pt=config.pt)
+        while config.shotTime > datetime.now().timestamp():
+            pass
+        self.setGPIO(False)
         for _ in self.camera.capture_continuous(stream, 'png'):
-            if config.shotTime <= datetime.now().timestamp() : # 시간 지나면 작동하게
-                result.setShotTime(datetime.now().timestamp())
-                result.setPhoto(bytearray(stream.getvalue()))
-                break
+            result.setShotTime(datetime.now().timestamp())
+            result.setPhoto(bytearray(stream.getvalue()))
+            break
+        self.setGPIO(True)
         #시간 데이터 저장
         if self.debug : 
             print("[CAPTURE] Request Time : {}".format(config.shotTime))
