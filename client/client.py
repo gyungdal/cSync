@@ -74,10 +74,11 @@ class Client(Communcation):
         while config.shotTime > datetime.now().timestamp():
             pass
         self.setGPIO(False)
-        for _ in self.camera.capture_continuous(stream, 'png'):
-            result.setShotTime(datetime.now().timestamp())
-            result.setPhoto(bytearray(stream.getvalue()))
-            break
+        if self.debug : 
+            print("[CAPTURE] LED ON Time : {}".format(datetime.now().timestamp()))
+        self.camera.capture(stream, 'png')
+        result.setShotTime(datetime.now().timestamp())
+        result.setPhoto(bytearray(stream.getvalue()))
         self.setGPIO(True)
         #시간 데이터 저장
         if self.debug : 
