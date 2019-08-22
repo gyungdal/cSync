@@ -72,12 +72,13 @@ class Client(Communcation):
         stream = io.BytesIO()
         result = PhotoData(name=config.name,pt=config.pt)
         self.setGPIO(False)
-        for _ in self.camera.capture_continuous(stream, 'png'):
-            if config.shotTime <= datetime.now().timestamp():
-                self.setGPIO(True)
-                result.setShotTime(datetime.now().timestamp())
-                result.setPhoto(bytearray(stream.getvalue()))
-                break
+        while(config.shotTime <= datetime.now().timestamp()):
+            continue
+        self.setGPIO(True)
+        self.camera.capture_continuous(stream, 'png'):
+        result.setShotTime(datetime.now().timestamp())
+        result.setPhoto(bytearray(stream.getvalue()))
+        
         #시간 데이터 저장
         if self.debug : 
             print("[CAPTURE] Request Time : {}".format(config.shotTime))
