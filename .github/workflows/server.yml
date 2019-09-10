@@ -19,4 +19,4 @@ jobs:
         pip install -r requirements.txt
     - name: Execute test
       run: |
-        timeout 10s echo 'e' | python server/main.py
+        timeout -s 9 10s echo 'e' | python3 server/main.py
