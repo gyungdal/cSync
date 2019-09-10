@@ -78,7 +78,6 @@ class Client(Communcation):
         self.camera.capture_continuous(stream, 'png'):
         result.setShotTime(datetime.now().timestamp())
         result.setPhoto(bytearray(stream.getvalue()))
-        
         #시간 데이터 저장
         if self.debug : 
             print("[CAPTURE] Request Time : {}".format(config.shotTime))
