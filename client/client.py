@@ -60,7 +60,7 @@ class Client(Communcation):
         camera.capture(rawCapture, format="bgr", use_video_port=True)
         image = rawCapture.array
         rawCapture.truncate(0)
-        return laplacian(image)
+        return self.laplacian(image)
 
     def setGPIO(self, status: bool):
         GPIO.output(5, status)
@@ -68,6 +68,7 @@ class Client(Communcation):
 
     def stop(self):
         self.flag = False
+        self.camera.stop_preview()
         self.camera.close()
         self.close()
         GPIO.cleanup()
@@ -104,9 +105,9 @@ class Client(Communcation):
 
         while True:
             # Adjust focus
-            focusing(focal_distance)
+            self.focusing(focal_distance)
             # Take image and calculate image clarity
-            val = calculation(camera)
+            val = self.calculation(camera)
             # Find the maximum image clarity
             if val > max_value:
                 max_index = focal_distance
@@ -128,18 +129,8 @@ class Client(Communcation):
                 break
 
         # Adjust focus to the best
-        focusing(max_index)
-        time.sleep(1)
-        # set camera resolution to 2592x1944
-        camera.resolution = (2592, 1944)
-        # save image to file.
-        camera.capture("test.jpg")
+        self.focusing(max_index)
         print("max index = %d,max value = %lf" % (max_index, max_value))
-        # while True:
-        #	time.sleep(1)
-
-        camera.stop_preview()
-        camera.close()
         data.status = CameraStatus.OK
         packet = Packet(PacketType.RESPONSE_STATUS, data)
         self.sendPickle(packet.toPickle())

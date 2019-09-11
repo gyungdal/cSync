@@ -90,7 +90,7 @@ class IDData(BaseData):
         self.id = loads(txt)["id"]
         
 class CaptureSetupData(BaseData):
-    def __init__(self, width = 3280, height = 2464, shotTime = datetime.now(), pt = '', name=''):
+    def __init__(self, width = 2592, height = 1944, shotTime = datetime.now(), pt = '', name=''):
         self.width = width
         self.height = height
         self.shotTime = shotTime
