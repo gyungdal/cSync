@@ -89,14 +89,8 @@ class Client(Communcation):
         response = self.ntp.request(
             self.config['ip'], port=self.config['port']['ntp'])
         data.diff = response.delay
-        camera = picamera.PiCamera()
-        # open camera preview
-        camera.start_preview()
-        # set camera resolution to 640x480(Small resolution for faster speeds.)
-        camera.resolution = (640, 480)
-
+        self.camera.resolution = (640, 480)
         print("Start focusing")
-
         max_index = 10
         max_value = 0.0
         last_value = 0.0
@@ -107,7 +101,7 @@ class Client(Communcation):
             # Adjust focus
             self.focusing(focal_distance)
             # Take image and calculate image clarity
-            val = self.calculation(camera)
+            val = self.calculation(self.camera)
             # Find the maximum image clarity
             if val > max_value:
                 max_index = focal_distance
