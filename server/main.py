@@ -20,7 +20,7 @@ if __name__ == "__main__":
     
     try:
         while FLAG:
-            value = input("CAPTURE?\nc : Capture\ns : status\nb : Broadcast\ne : stop")
+            value = input("CAPTURE?\nc : Capture\ns : status\nb : Broadcast\ne : stop\n")
             HANDLER_TABLE = {
                 'c' : fileInstance.capture,
                 'b' : broadcast,
@@ -32,7 +32,6 @@ if __name__ == "__main__":
     except KeyboardInterrupt:
         FLAG = False
     finally:
-        print("Exiting...")
         ntpInstance.stop()
         fileInstance.stop()
         print("Exited")

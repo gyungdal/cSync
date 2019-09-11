@@ -129,14 +129,17 @@ class fileServer(threading.Thread):
         self.runningFlag = False
     
     def run(self):
-        while self.runningFlag:
-            connection, addr = self.server.accept()
-            print("[Connect] Client " + str(self.clientID) + " Connected, " + str(addr))
-            peer = PeerThread(connection, self.clientID)
-            peer.start()
-            self.clientID = self.clientID + 1
-            self.peers.append(peer)
-            for peer in self.peers:
-                if not peer.isAlive():
-                    self.peers.remove(peer)
-                    self.clientID = self.clientID - 1
+        try:
+            while self.runningFlag:
+                connection, addr = self.server.accept()
+                print("[Connect] Client " + str(self.clientID) + " Connected, " + str(addr))
+                peer = PeerThread(connection, self.clientID)
+                peer.start()
+                self.clientID = self.clientID + 1
+                self.peers.append(peer)
+                for peer in self.peers:
+                    if not peer.isAlive():
+                        self.peers.remove(peer)
+                        self.clientID = self.clientID - 1
+        except:
+            pass

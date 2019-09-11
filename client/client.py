@@ -39,7 +39,6 @@ class Client(Communcation):
         self.close()
         GPIO.cleanup()
         
-        
     def setID(self):
         self.id = int(loads(self.response['data'])['id'])
         
