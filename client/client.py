@@ -6,13 +6,14 @@ import socket
 import io
 import ntplib
 import time
+import sys
+import os
+sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
+
 from datetime import datetime
 from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData, CameraStatus
 from pickle import loads, dumps
 from communication import Communcation
-import sys
-import os
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 try:
     import picamera
