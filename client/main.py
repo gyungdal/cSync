@@ -6,7 +6,14 @@ import logging
 import subprocess
 import signal
 import sys
+import enum
 
+class NoValue(enum.Enum):
+    def __repr__(self):
+        return '<%s.%s>' % (self.__class__.__name__, self.name)
+class RequestType(NoValue):
+    UPDATE = "update"
+    
 class Client():
     def __init__(self):
         self.processList = []

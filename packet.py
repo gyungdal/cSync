@@ -23,7 +23,6 @@ class PacketType(enum.Enum):
     
 class CameraStatus(enum.Enum):
     OK = enum.auto()
-    
     BUSY = enum.auto()
     DISCONNECTED = enum.auto()
     

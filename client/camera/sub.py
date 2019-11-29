@@ -1,3 +1,5 @@
+
+
 import numpy as py
 import cv2
 import RPi.GPIO as GPIO
@@ -20,23 +22,20 @@ try:
     from picamera.array import PiRGBArray
 except:
     sys.exit(0)
-
-
-class Client(Communcation):
-    def __init__(self, config={}, debug=False):
-        sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sck.connect((config['ip'], config['port']['file']))
-        Communcation.__init__(self, sck, debug=debug)
-        self.flag = True
-        self.id = -1
-        self.ntp = ntplib.NTPClient()
-        self.response = None
-        self.camera = picamera.PiCamera()
-        self.config = config
-        self.debug = debug
+    
+class Sub(Communcation):
+    def __init__(self, ip : str, port : int, debug=False):
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(5, GPIO.OUT)
         GPIO.setup(6, GPIO.OUT)
+        sck = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sck.connect(ip, port)
+        Communcation.__init__(self, sck, debug=debug)
+        self.flag = True
+        self.id = -1
+        self.response = None
+        self.debug = debug
+        self.camera = picamera.PiCamera()
         self.setGPIO(True)
 
     def focusing(self, val):
@@ -73,11 +72,6 @@ class Client(Communcation):
         self.close()
         GPIO.cleanup()
 
-    def setID(self):
-        self.id = int(loads(self.response['data'])['id'])
-
-    def getID(self) -> int:
-        return self.id
 
     def __response_id(self):
         data = IDData(self.id)
@@ -159,20 +153,40 @@ class Client(Communcation):
         self.sendPickle(packet.toPickle())
         if self.debug:
             print("[CAPTURE] Done : {}".format(datetime.now().timestamp()))
+    
+    def __ntpUpdate(self):
+        timeServer = "pool.ntp.org"
+        c = ntplib.NTPClient()
+        response = c.request(timeServer, version=3)
+        response.offset
+        
+
+    def __cameraPrepare(self):
+        pass
+
+    def __cameraStatus(self):
+        pass
+
+    def __cameraCapture(self):
+        pass
 
     def run(self):
         HANDLER_TABLE = {
-            PacketType.SET_CLIENT_ID.name: self.setID,
-            PacketType.REQUEST_ID.name: self.__response_id,
-            PacketType.REQUEST_STATUS.name: self.__response_status,
-            PacketType.REQUEST_CAPTURE.name: self.__response_capture,
-            PacketType.REQUEST_EXIT.name: self.stop
+            "ntp" : {
+                "update" : self.__ntpUpdate
+            },
+            "camera" : {
+                "prepare" : self.__cameraPrepare,
+                "status" : self.__cameraStatus,
+                "capture" : self.__cameraCapture
+            }
         }
         while self.flag:
             try:
                 self.response = loads(self.recvPickle())
-                if self.response["type"] in HANDLER_TABLE.keys():
-                    HANDLER_TABLE[self.response["type"]]()
+                if self.response["service"] in HANDLER_TABLE.keys():
+                    if self.response["command"] in HANDLER_TABLE[self.response["service"]].keys():
+                        HANDLER_TABLE[self.response["service"]][self.response["command"]]()
             except Exception as e:
                 if self.debug:
                     print("[ERROR] Thread Exception" + str(e))
