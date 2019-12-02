@@ -8,7 +8,6 @@ import ntplib
 import time
 import sys
 import os
-sys.path.append(os.path.dirname(os.path.abspath(os.path.dirname(__file__))))
 
 from datetime import datetime
 from packet import Packet, PacketType, IDData, StatusData, CaptureSetupData, PhotoData, CameraStatus

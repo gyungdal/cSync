@@ -153,16 +153,6 @@ class Sub(Communcation):
         self.sendPickle(packet.toPickle())
         if self.debug:
             print("[CAPTURE] Done : {}".format(datetime.now().timestamp()))
-    
-    def __ntpUpdate(self):
-        timeServer = "pool.ntp.org"
-        c = ntplib.NTPClient()
-        response = c.request(timeServer, version=3)
-        response.offset
-        
-
-    def __cameraPrepare(self):
-        pass
 
     def __cameraStatus(self):
         pass

@@ -16,6 +16,7 @@ class CommandType(enum.Enum):
     NONE = enum.auto()
     UPDATE  = enum.auto()
     UPDATE_ZIP = enum.auto()
+    VERSION = enum.auto()
     START = enum.auto()
     STOP = enum.auto()
     KILL = enum.auto()
@@ -45,16 +46,22 @@ class Packet(BaseData):
             }
         ), compresslevel=9)
 
-    def loadPickle(self, values : bytes):
+    def loadPickle(self, values : bytearray):
         temp = loads(decompress(values))
         self.service = ServiceType[temp["service"]]
         self.command = CommandType[temp["command"]]
         TABLE = {
             ServiceType.CSYNC : {
-                CommandType.UPDATE : UpdatePacket
+                CommandType.UPDATE : UpdatePacket,
+                CommandType.UPDATE_ZIP : UpdateZIPPacket,
+                CommandType.START : StartPacket,
+                CommandType.VERSION : VersionResponsePacket
+            },
+            ServiceType.CSYNC : {
+                CommandType.STATUS : StatusResponse
             }
         }
-        if self.type in TABLE.keys():
+        if self.type in TABLE[self.service].keys():
             self.data = TABLE[self.type]()
             self.data.loadPickle(temp["data"])
         else:
@@ -125,7 +132,7 @@ class StatusRequestPacket(BaseData):
         self.image_effect = values["image_effect"]
         self.brightness = values["brightness"]
 
-class StatusResponse(BaseData):
+class StatusResponsePacket(BaseData):
     def __init__(self):
         super().__init__()
         self.ip = "0.0.0.0"
@@ -149,7 +156,7 @@ class StatusResponse(BaseData):
         self.brightness = values["brightness"]
         self.time_offset = values["time_offset"]
 
-class CaptureReuest(BaseData):
+class CaptureReuestPacket(BaseData):
     def __init__(self):
         super().__init__()
         self.timestamp = 0
@@ -159,7 +166,7 @@ class CaptureReuest(BaseData):
         self.ip = values["ip"]
         self.light = values["light"]
 
-class CaptureResponse(BaseData):
+class CaptureResponsePacket(BaseData):
     def __init__(self):
         super().__init__()
         self.ip = "0.0.0.0"

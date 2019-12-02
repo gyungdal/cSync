@@ -7,6 +7,7 @@ import subprocess
 import signal
 import sys
 import enum
+from communication import Communcation
 
 class NoValue(enum.Enum):
     def __repr__(self):
@@ -14,7 +15,7 @@ class NoValue(enum.Enum):
 class RequestType(NoValue):
     UPDATE = "update"
     
-class Client():
+class Client(Communcation):
     def __init__(self):
         self.processList = []
         self.handler = {
