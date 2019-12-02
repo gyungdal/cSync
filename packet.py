@@ -1,182 +1,191 @@
 import enum
 import os
+import logging
 
 from pickle import dumps, loads
 from datetime import datetime
 from gzip import compress, decompress
+from hashlib import md5
 
-class PacketType(enum.Enum):
+class ServiceType(enum.Enum):
     NONE = enum.auto()
+    CSYNC = enum.auto()
+    CAMERA = enum.auto()
     
-    SET_CLIENT_ID = enum.auto()
-    
-    REQUEST_ID = enum.auto()
-    RESPONSE_ID = enum.auto()
-    
-    REQUEST_STATUS = enum.auto()
-    RESPONSE_STATUS = enum.auto()
-    
-    REQUEST_CAPTURE = enum.auto()
-    RESPONSE_CAPTURE = enum.auto()
-    
-    REQUEST_EXIT = enum.auto()
-    
-class CameraStatus(enum.Enum):
-    OK = enum.auto()
-    BUSY = enum.auto()
-    DISCONNECTED = enum.auto()
-    
+class CommandType(enum.Enum):
+    NONE = enum.auto()
+    UPDATE  = enum.auto()
+    UPDATE_ZIP = enum.auto()
+    START = enum.auto()
+    STOP = enum.auto()
+    KILL = enum.auto()
+    PREPARE = enum.auto()
+    STATUS = enum.auto()
+    CAPTURE = enum.auto()
+
 class BaseData:
     def toPickle(self) -> str:
         pass
 
-    def loadPickle(self, txt):
+    def loadPickle(self, values):
         pass
-    
-class Packet:
-    def __init__(self, tp : PacketType, data):
-        self.version = '20190612_dev'
-        self.type = tp
-        self.data = data
 
-    def getType(self) -> PacketType:
-        return self.type
-        
-    def setType(self, tp):
-        self.type = tp
-        
-    def setData(self, data):
-        self.data = data
-        
-    def getData(self):
-        return self.data
-    
-    def toPickle(self) -> str:
-        return dumps({
-            "version": self.version,
-            "data": self.data.toPickle(),
-            "type": self.type.name
-        })
+class Packet(BaseData):
+    def __init__(self, data):
+        self.service = ServiceType.NONE
+        self.command = CommandType.NONE
+        self.data = None
 
-    def loadPickle(self, Pickle):
-        temp = loads(Pickle)
-        self.version = temp["version"]
-        self.type = PacketType[temp["type"]]
+    def toPickle(self) -> bytes:
+        return compress(dumps(
+            {
+                "service" : self.service,
+                "command" : self.command,
+                "data" : self.data
+            }
+        ), compresslevel=9)
+
+    def loadPickle(self, values : bytes):
+        temp = loads(decompress(values))
+        self.service = ServiceType[temp["service"]]
+        self.command = CommandType[temp["command"]]
         TABLE = {
-            PacketType.SET_CLIENT_ID : IDData(),
-            PacketType.REQUEST_ID : None,
-            PacketType.RESPONSE_ID : IDData(),
-            PacketType.REQUEST_STATUS : None,
-            PacketType.RESPONSE_STATUS : StatusData(),
-            PacketType.REQUEST_CAPTURE : CaptureSetupData(),
-            PacketType.RESPONSE_CAPTURE : PhotoData(),
-            PacketType.REQUEST_EXIT : None
+            ServiceType.CSYNC : {
+                CommandType.UPDATE : UpdatePacket
+            }
         }
-        self.data = TABLE[self.type]
-        if self.data != None:
+        if self.type in TABLE.keys():
+            self.data = TABLE[self.type]()
             self.data.loadPickle(temp["data"])
-        
-class IDData(BaseData):
-    def __init__(self, id = 0):
-        self.id = id
-        
-    def toPickle(self) -> str:
-        return dumps({
-            "id" : self.id
-        })
-        
-    def loadPickle(self, txt):
-        self.id = loads(txt)["id"]
-        
-class CaptureSetupData(BaseData):
-    def __init__(self, width = 2592, height = 1944, shotTime = datetime.now(), pt = '', name=''):
-        self.width = width
-        self.height = height
-        self.shotTime = shotTime
-        self.pt = pt
-        self.name = name
-        
-    def toPickle(self) -> str:
-        return dumps({
-            "width" : self.width,
-            "height" : self.height,
-            "shotTime" : self.shotTime,
-            "pt" : self.pt,
-            "name" : self.name
-        })
-        
-    def loadPickle(self, txt):
-        data = loads(txt)
-        self.shotTime = data["shotTime"]
-        self.width = data["width"]
-        self.height = data["height"]
-        self.pt = data["pt"]
-        self.name = data["name"]
+        else:
+            logging.error("not found data type")
         
 
-class PhotoData(BaseData):
-    '''
-    타임스탬프 값
-    '''
-    def __init__(self, shotTime:float = datetime.now().timestamp(), 
-                 photo:bytearray = b'', pt = '', name=''):
-        self.id = id
-        self.shotTime = shotTime
-        self.photo = photo
-        self.name = name
-        self.pt = pt
+# Main Process
+class UpdatePacket:
+    def __init__(self):
+        super().__init__()
+        self.version = ""
+        self.url = ""
+
+    def loadPickle(self, values):
+        self.version = values["version"]
+        self.url = values["url"]
+
+class UpdateZIPPacket(BaseData):
+    def __init__(self):
+        super().__init__()
+        self.version = ""
+        self.hash = ""
+        self.file = bytearray()
+
+    def loadPickle(self, values):
+        self.version = values["version"]
+        self.file = values["file"]
+        self.hash = values["hash"]
+        with md5() as m:
+            m.update(self.file)
+            if m.hexdigest() != self.hash:
+                logging.error("File Hash Mismatch")
+
+class StartPacket(BaseData):
+    def __init__(self):
+        super().__init__()
+        self.ip = ""
+        self.port = 0
+
+    def loadPickle(self, values):
+        self.ip = values["ip"]
+        self.port = values["port"]
+
+class VersionResponsePacket(BaseData):
+    def __init__(self):
+        super().__init__()
+        self.version = ""
+
+    def loadPickle(self, values):
+        self.version = values["version"]
+
+# Sub Process
+class StatusRequestPacket(BaseData):
+    def __init__(self):
+        super().__init__()
+        self.width = 1234
+        self.height = 12340
+        self.awb_mode = ""
+        self.exposure_mode = ""
+        self.image_effect = ""
+        self.brightness = 10
+
+    def loadPickle(self, values):
+        self.width = values["width"]
+        self.height = values["height"]
+        self.awb_mode = values["awb_mode"]
+        self.exposure_mode = values["exposure_mode"]
+        self.image_effect = values["image_effect"]
+        self.brightness = values["brightness"]
+
+class StatusResponse(BaseData):
+    def __init__(self):
+        super().__init__()
+        self.ip = "0.0.0.0"
+        self.useable = False
+        self.width = 0
+        self.height = 0
+        self.awb_mode = ""
+        self.exposure_mode = ""
+        self.image_effect = ""
+        self.brightness = 0
+        self.time_offset = 0
         
-    def setShotTime(self, shotTime : float):
-        self.shotTime = shotTime
-        
-    def getShotTime(self) -> float:
-        return self.shotTime
+    def loadPickle(self, values):
+        self.ip = values["ip"]
+        self.useable = values["useable"]
+        self.width = values["width"]
+        self.height = values["height"]
+        self.awb_mode = values["awb_mode"]
+        self.exposure_mode = values["exposure_mode"]
+        self.image_effect = values["image_effect"]
+        self.brightness = values["brightness"]
+        self.time_offset = values["time_offset"]
+
+class CaptureReuest(BaseData):
+    def __init__(self):
+        super().__init__()
+        self.timestamp = 0
+        self.light = False
     
-    def setPhoto(self, photo: bytearray):
-        self.photo = photo
-    
-    def getPhoto(self) -> bytearray:
-        return self.photo
-    
-    def toPickle(self) -> str:
-        return dumps({
-            "shotTime" : self.shotTime,
-            "photo" : compress(self.photo, compresslevel=9),
-            "pt" : self.pt,
-            "name" : self.name
-        })
-    
-    def loadPickle(self, txt: str):
-        data = loads(txt)
-        self.shotTime = data["shotTime"]
-        self.photo = decompress(data["photo"])
-        self.name = data['name']
-        self.pt = data['pt']
-        
-    def savePhoto(self) -> bool:
+    def loadPickle(self, values):
+        self.ip = values["ip"]
+        self.light = values["light"]
+
+class CaptureResponse(BaseData):
+    def __init__(self):
+        super().__init__()
+        self.ip = "0.0.0.0"
+        self.timestamp = 0
+        self.md5 = ""
+        self.photo = bytearray()
+
+    def loadPickle(self, values):
+        self.ip = values["ip"]
+        self.timestamp = values["timestamp"]
+        self.photo = values["photo"]
+        self.md5 = values["md5"]
+        with md5() as m:
+            m.update(self.photo)
+            if m.hexdigest() != self.hash:
+                logging.error("File Hash Mismatch")
+                
+    def savePhoto(self, dir, name)-> bool:
         try:
-            if not os.path.isdir(self.pt) :
-                os.mkdir(self.pt)
-            file = open(os.path.join(self.pt, self.name), 'wb')
+            if not os.path.isdir(dir) :
+                os.mkdir(dir)
+            file = open(os.path.join(dir, name + ".png"), 'wb')
             file.write(self.photo)
             file.close()
             return True
         except Exception as e:
-            print("[ERROR] " + e)
+            logging.error("Image Save Error " + e)
             return False
         
-class StatusData(BaseData):
-    def __init__(self, diff = 0, status = CameraStatus.DISCONNECTED):
-        self.diff = diff
-        self.status = status
-        
-    def toPickle(self) -> str:
-        return dumps({
-            "diff" : self.diff,
-            "status" : self.status.name
-        })
-        
-    def loadPickle(self, txt):
-        data = loads(txt)
-        self.diff = data["diff"]
-        self.status = CameraStatus[data["status"]]
