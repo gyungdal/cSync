@@ -7,30 +7,48 @@ import subprocess
 import signal
 import sys
 import enum
-from communication import Communcation
 
-class NoValue(enum.Enum):
-    def __repr__(self):
-        return '<%s.%s>' % (self.__class__.__name__, self.name)
-class RequestType(NoValue):
-    UPDATE = "update"
-    
+from client.communication import Communcation
+from client.packet import *
+
 class Client(Communcation):
     def __init__(self):
+        self.sourcePath = os.path.dirname(os.path.abspath(__file__))
+        self.cameraSourcePath = os.path.join(os.path.dirname(os.path.abspath(__file__)), "bin")
         self.processList = []
-        self.handler = {
-            "update" : self.update,
-            "update-zip" : self.update,
-            "start" : self.start,
-            "stop" : self.kill
+        self.handlerTable = {
+            CommandType.START : self.start,
+            CommandType.UPDATE : self.update,
+            CommandType.UPDATE_ZIP : self.updateZip,
+            CommandType.KILL : self.kill
         }
 
-    def update(self, packet):
-        pass
-    def start(self, packet):
-        pass
+    def update(self, data : UpdatePacket):
+        self.kill(None)
+        from urllib.request import urlopen
+        response = urlopen(data.url)
+        zip = UpdateZIPPacket()
+        zip.file = response.read()
+        self.updateZip(zip)
+
+    def updateZip(self, data : UpdateZIPPacket):
+        self.kill(None)
+        from zipfile import ZipFile
+        from shutil import rmtree
+        from os import chdir
+        rmtree(cameraSourcePath)
+        chdir(cameraSourcePath)
+        with ZipFile(data.file) as zip:
+            zip.printdir()
+            zip.extractall()
+
+    def start(self, data : StartPacket):
+        from os import chdir
+        chdir(cameraSourcePath)
+        proc = subprocess.Popen(["python3.7", "sub.py", data.ip, data.port])
+        self.processList.append(proc)
     
-    def kill(self, packet):
+    def kill(self, data):
         for process in self.processList :
             process.kill()
 
@@ -40,15 +58,17 @@ class Client(Communcation):
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind(('', 8080))
             msg, _ = s.recvfrom(1024)  # 브로드케스트 서버의 전송을 기다린다.
-            recv = pickle.loads(msg)
+            packet = Packet()
+            packet.loadPickle(msg)
             s.close()
-            if recv["service"] == "cSync":
-                if recv["command"] in self.handler:
-                    self.handler[recv["command"]](recv)
+            if packet.sendTo is ParserType.CLIENT :
+                if packet.service is ServiceType.CSYNC :
+                    if packet.command in self.handlerTable.keys():
+                        self.handlerTable[packet.command](packet.data)
 
     def dispose(self):
         self.kill()
-        
+
 client = Client()
 
 def signalHandler(signum, frame):
@@ -60,6 +80,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signalHandler)
     signal.signal(signal.SIGTERM, signalHandler)
     signal.signal(signal.SIGKILL, signalHandler)
-    client = Client()
     while True:
         client.waitServer()
