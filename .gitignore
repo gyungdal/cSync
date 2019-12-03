@@ -212,3 +212,5 @@ dmypy.json
 *.png
 
 # End of https://www.gitignore.io/api/node,pythong
+
+*.DS_Store

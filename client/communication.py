@@ -8,7 +8,7 @@ class Communcation(threading.Thread):
         self.socket = sck
         self.debug = debug
         
-    def __recvall(self, count : int) -> bytearray:
+    def __recvall(self, count : int) -> bytes:
         buf = b''
         while count:
             newbuf = self.socket.recv(count)
@@ -18,7 +18,7 @@ class Communcation(threading.Thread):
             count -= len(newbuf)
         return buf
     
-    def recvPickle(self) -> bytearray:
+    def recvPickle(self) -> bytes:
         while True:
             lenght = int(str(self.__recvall(128), 'utf-8'))
             if lenght > 0 :
@@ -28,13 +28,13 @@ class Communcation(threading.Thread):
                 #print("[RECV] DATA : " + data)
                 return data
     
-    def sendPickle(self, txt : bytearray):
+    def sendPickle(self, txt : bytes):
         lengthTxt = '{:0128d}'.format(len(txt))
         if self.debug:
             logging.debug("[SEND] LENGTH : " + str(len(txt)))
             logging.debug("[SEND] LENGTH HEADER : " + lengthTxt)
         
-        self.socket.sendall(bytearray(lengthTxt, 'utf-8'))
+        self.socket.sendall(bytes(lengthTxt, 'utf-8'))
         self.socket.sendall(txt)
         
     def close(self):
