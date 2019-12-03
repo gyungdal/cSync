@@ -52,19 +52,20 @@ class Client(Communcation):
         for process in self.processList :
             process.kill()
 
-    def waitServer(self):
-        try:
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-            s.bind(('', 8080))
-            msg, _ = s.recvfrom(1024)  # 브로드케스트 서버의 전송을 기다린다.
-            packet = Packet()
-            packet.loadPickle(msg)
-            s.close()
-            if packet.sendTo is ParserType.CLIENT :
-                if packet.service is ServiceType.CSYNC :
-                    if packet.command in self.handlerTable.keys():
-                        self.handlerTable[packet.command](packet.data)
+    def run(self):
+        while True:
+            try:
+                s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+                s.bind(('', 8080))
+                msg, _ = s.recvfrom(1024)  # 브로드케스트 서버의 전송을 기다린다.
+                packet = Packet()
+                packet.loadPickle(msg)
+                s.close()
+                if packet.sendTo is ParserType.CLIENT :
+                    if packet.service is ServiceType.CSYNC :
+                        if packet.command in self.handlerTable.keys():
+                            self.handlerTable[packet.command](packet.data)
 
     def dispose(self):
         self.kill()
@@ -81,4 +82,4 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, signalHandler)
     signal.signal(signal.SIGKILL, signalHandler)
     while True:
-        client.waitServer()
+        client.start()

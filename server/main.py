@@ -1,10 +1,8 @@
-from ntp_server import NTPServer
 from utils import hereAmI
 from file_server import fileServer
 from time import sleep
 
 fileInstance = fileServer()
-ntpInstance = NTPServer()
 FLAG = True
 
 def stop():

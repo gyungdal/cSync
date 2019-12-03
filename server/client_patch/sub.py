@@ -36,6 +36,7 @@ class Sub(Communcation):
         self.response = None
         self.debug = debug
         self.camera = picamera.PiCamera()
+        self.offset = 0
         self.setGPIO(True)
 
     def focusing(self, val):
@@ -71,18 +72,15 @@ class Sub(Communcation):
         self.camera.close()
         self.close()
         GPIO.cleanup()
+    
+    def __ntpUpdate(self):
+        timeServer = "pool.ntp.org"
+        c = ntplib.NTPClient()
+        response = c.request(timeServer, version=3)
+        self.offset = response.offset
 
 
-    def __response_id(self):
-        data = IDData(self.id)
-        packet = Packet(PacketType.RESPONSE_ID, data)
-        self.sendPickle(packet.toPickle())
-
-    def __response_status(self):
-        data = StatusData()
-        response = self.ntp.request(
-            self.config['ip'], port=self.config['port']['ntp'])
-        data.diff = response.delay
+    def __cameraPrepare(self):
         self.camera.resolution = (640, 480)
         print("Start focusing")
         max_index = 10
@@ -119,6 +117,19 @@ class Sub(Communcation):
         # Adjust focus to the best
         self.focusing(max_index)
         print("max index = %d,max value = %lf" % (max_index, max_value))
+
+    def __cameraStatus(self):
+        self.camera.resoulution = (self.response.width, self.response.height)
+        self.camera.framerate = 15
+        self.camera.led = False
+        self.awb_mode = self.response.awb_mode
+        self.exposure_mode = self.response.exposure_mode
+        self.image_effect = self.response.image_effect
+        self.brightness = self.response.brightness
+
+        data = StatusData()
+        
+        data.diff = response.delay
         data.status = CameraStatus.OK
         packet = Packet(PacketType.RESPONSE_STATUS, data)
         self.sendPickle(packet.toPickle())
@@ -126,11 +137,9 @@ class Sub(Communcation):
             print("[STATUS] Status : {}\tDIFF = {}".format(
                 data.status, data.diff))
 
-    def __response_capture(self):
+    def __cameraCapture(self):
         if self.debug:
             print("[CAPTURE] Start : {}".format(datetime.now().timestamp()))
-        config = CaptureSetupData()
-        config.loadPickle(self.response["data"])
         self.camera.resolution = (config.width, config.height)
         self.camera.framerate = 15
         self.camera.led = False
@@ -154,11 +163,6 @@ class Sub(Communcation):
         if self.debug:
             print("[CAPTURE] Done : {}".format(datetime.now().timestamp()))
 
-    def __cameraStatus(self):
-        pass
-
-    def __cameraCapture(self):
-        pass
 
     def run(self):
         HANDLER_TABLE = {
