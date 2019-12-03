@@ -11,7 +11,13 @@ class ServiceType(enum.Enum):
     NONE = enum.auto()
     CSYNC = enum.auto()
     CAMERA = enum.auto()
+    NTP = enum.auto()
     
+class ParserType(enum.Enum):
+    NONE = enum.auto()
+    SERVER = enum.auto()
+    CLIENT = enum.auto()
+
 class CommandType(enum.Enum):
     NONE = enum.auto()
     UPDATE  = enum.auto()
@@ -32,9 +38,10 @@ class BaseData:
         pass
 
 class Packet(BaseData):
-    def __init__(self, data):
+    def __init__(self, data, sendTo : ParserType = ParserType.CLIENT):
         self.service = ServiceType.NONE
         self.command = CommandType.NONE
+        self.sendTo = sendTo
         self.data = None
 
     def toPickle(self) -> bytes:
@@ -42,6 +49,7 @@ class Packet(BaseData):
             {
                 "service" : self.service,
                 "command" : self.command,
+                "sendTo" : self.sendTo,
                 "data" : self.data
             }
         ), compresslevel=9)
@@ -50,18 +58,32 @@ class Packet(BaseData):
         temp = loads(decompress(values))
         self.service = ServiceType[temp["service"]]
         self.command = CommandType[temp["command"]]
+        self.sendTo = ParserType[temp["sendTo"]]
         TABLE = {
-            ServiceType.CSYNC : {
-                CommandType.UPDATE : UpdatePacket,
-                CommandType.UPDATE_ZIP : UpdateZIPPacket,
-                CommandType.START : StartPacket,
-                CommandType.VERSION : VersionResponsePacket
+            # 클라이언트 측에서 받는 패킷
+            ParserType.CLIENT : {
+                ServiceType.CSYNC : {
+                    CommandType.UPDATE : UpdatePacket,
+                    CommandType.UPDATE_ZIP : UpdateZIPPacket,
+                    CommandType.START : StartPacket
+                },
+                ServiceType.CAMERA : {
+                    CommandType.PREPARE : PrepareRequestPacket,
+                    CommandType.CAPTURE : CaptureReuestPacket
+                }
             },
-            ServiceType.CSYNC : {
-                CommandType.STATUS : StatusResponse
+            # 서버 측에서 받는 패킷
+            ParserType.SERVER : {
+                ServiceType.CSYNC : {
+                    CommandType.VERSION : VersionResponsePacket,
+                },
+                ServiceType.CAMERA : {
+                    CommandType.STATUS : StatusResponsePacket,
+                    CommandType.CAPTURE : CaptureResponsePacket
+                }
             }
         }
-        if self.type in TABLE[self.service].keys():
+        if self.type in TABLE[self.sendTo][self.service].keys():
             self.data = TABLE[self.type]()
             self.data.loadPickle(temp["data"])
         else:
@@ -114,7 +136,7 @@ class VersionResponsePacket(BaseData):
         self.version = values["version"]
 
 # Sub Process
-class StatusRequestPacket(BaseData):
+class PrepareRequestPacket(BaseData):
     def __init__(self):
         super().__init__()
         self.width = 1234
@@ -184,7 +206,7 @@ class CaptureResponsePacket(BaseData):
             if m.hexdigest() != self.hash:
                 logging.error("File Hash Mismatch")
                 
-    def savePhoto(self, dir, name)-> bool:
+    def savePhoto(self, dir : str, name : str)-> bool:
         try:
             if not os.path.isdir(dir) :
                 os.mkdir(dir)
