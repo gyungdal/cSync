@@ -17,6 +17,6 @@ jobs:
 #      run: |
 #        python -m pip install --upgrade pip
 #        pip install -r requirements.txt
-    - name: Execute test
-      run: |
-        pytest -q test/system.py
+#    - name: Execute test
+#      run: |
+#        pytest -q test/system.py
