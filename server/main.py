@@ -1,47 +1,66 @@
 import signal 
 import logging
 from sys import exit
+from aioconsole import ainput
 
+logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 def signalHandler(signum, frame):
     logger.critical("Exit Signal %d".format(signum))
     exit()
 
-def get_ip_address() -> str :
+def get_broadcast_ip() -> str :
     from sys import platform
     import netifaces as ni
     ifname = "eth0"
     if platform.startswith('darwin'):
         ifname = 'en0'
     ni.ifaddresses(ifname)
-    return ni.ifaddresses(ifname)[ni.AF_INET][0]['addr']
+    local_ip = ni.ifaddresses(ifname)[ni.AF_INET][0]['addr']
+    logger.info("local ip : %s" % local_ip)
+    local_ip_split = local_ip.split('.')
+    local_ip_split[3] = '255'
+    broadcast_ip : str = '.'.join(local_ip_split)
+    logger.info("broadcast ip : %s" % broadcast_ip)
+    return broadcast_ip
 
-def find_device(message : str, broadcast_ip : str):
+
+def find_device():
+    from json import dumps
     import socket
+    message = {}
+    message['test'] = "value"
+    data = dumps(message)
+    broadcast_ip = get_broadcast_ip()
     server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
     server.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
     logger.debug('send message : %s' % message)
-    server.sendto(message.encode(),  (broadcast_ip, 8001))
+    server.sendto(data.encode(),  (broadcast_ip, 8001))
     server.close()
 
-async def main(broadcast_ip : str):
-    from json import dumps
-    message = {}
-    message['test'] = "value"
-    data = dumps(message)
-    print(data)
-    print(type(data))
-    find_device(data, broadcast_ip)
+async def main():
+    while True:
+        MENU = "b : broadcast\n"
+        line : str = await ainput(MENU)
+        HANDLER = {
+            'b' : find_device
+        }
+        line = line.strip()
+        if line in HANDLER.keys():
+            HANDLER[line]()
+        else:
+            logger.warning("no handler : '%s'" % line)
 
 if __name__ == "__main__":
-    from asyncio import run
+    from asyncio import new_event_loop, set_event_loop
     signal.signal(signal.SIGINT, signalHandler)
     signal.signal(signal.SIGTERM, signalHandler)
     #signal.signal(signal.SIGKILL, signalHandler)
-    local_ip = get_ip_address().split('.')
-    local_ip[3] = '255'
-    broadcast_ip : str = '.'.join(local_ip)
-    logger.info("broadcast ip : %s" % broadcast_ip)
-    print(broadcast_ip)
-    run(main(broadcast_ip))
+    loop = new_event_loop()
+    set_event_loop(loop)
+    try:
+        loop.run_until_complete(main())
+    finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        loop.close()
