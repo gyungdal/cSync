@@ -5,10 +5,6 @@ from aioconsole import ainput
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-def signalHandler(signum, frame):
-    logger.critical("Exit Signal %d".format(signum))
-    exit()
-
 def get_broadcast_ip() -> str :
     from sys import platform
     import netifaces as ni
@@ -38,29 +34,43 @@ def find_device():
     logger.debug('send message : %s' % message)
     server.sendto(data.encode(),  (broadcast_ip, 8001))
     server.close()
+    return True
+
+def close():
+    return False
 
 async def main():
-    while True:
-        MENU = "b : broadcast\n"
+    FLAG = True
+    while FLAG:
+        MENU = "b : broadcast\nc : shutdown"
         line : str = await ainput(MENU)
         HANDLER = {
             'b' : find_device
         }
-        line = line.strip()
+
+        line = line.strip().lower()
         if line in HANDLER.keys():
             HANDLER[line]()
+        elif line in ['c']:
+            FLAG = False
         else:
             logger.warning("no handler : '%s'" % line)
 
+
 if __name__ == "__main__":
     from asyncio import new_event_loop, set_event_loop
-    signal.signal(signal.SIGINT, signalHandler)
-    signal.signal(signal.SIGTERM, signalHandler)
     #signal.signal(signal.SIGKILL, signalHandler)
     loop = new_event_loop()
     set_event_loop(loop)
+    def signalHandler(signum, frame):
+        logger.critical("Exit Signal %d" % signum)
+        exit()
+
+    signal.signal(signal.SIGINT, signalHandler)
+    signal.signal(signal.SIGTERM, signalHandler)
     try:
         loop.run_until_complete(main())
     finally:
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
+        
