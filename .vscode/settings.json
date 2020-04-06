@@ -1,4 +1,3 @@
 {
-    //"python.pythonPath": "C:\\Users\\Jaeyoon\\envs\\tfg\\Scripts\\python.exe"
-    "python.pythonPath": "python"
+    "python.pythonPath": "./client/venv/bin/python"
 }

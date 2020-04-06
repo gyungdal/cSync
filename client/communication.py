@@ -1,6 +1,8 @@
 import socket
 import threading
 import logging
+import asyncio
+import websockets
 
 class Communcation(threading.Thread):
     def __init__(self, sck : socket.socket, debug = False):

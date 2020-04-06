@@ -1,7 +1,5 @@
 import numpy as py
 import cv2
-import RPi.GPIO as GPIO
-import picamera
 import socket
 import io
 import ntplib
@@ -15,6 +13,7 @@ from pickle import loads, dumps
 from communication import Communcation
 
 try:
+    from RPi import GPIO
     import picamera
     from picamera.array import PiRGBArray
 except:
