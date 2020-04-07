@@ -40,7 +40,7 @@ class WebProcess(Process, websockets.WebSocketServer):
     async def unregister(self, websocket):
         self.USERS.remove(websocket)
         await self.notify_users()
-
+    
     async def echo(self, websocket, path):
         await self.register(websocket)
         try:
@@ -64,9 +64,11 @@ class WebProcess(Process, websockets.WebSocketServer):
             await stop
 
     def run(self):
-        from signal import SIGTERM
+        from signal import SIGTERM, SIGINT, SIGKILL
         loop = get_event_loop()
         stop = loop.create_future()
+        loop.add_signal_handler(SIGKILL, stop.set_result, None)
+        loop.add_signal_handler(SIGINT, stop.set_result, None)
         loop.add_signal_handler(SIGTERM, stop.set_result, None)
         loop.run_until_complete(self.server(stop))
         loop.run_forever()
