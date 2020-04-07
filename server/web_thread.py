@@ -2,6 +2,10 @@ import websockets
 from multiprocessing import Process, Pipe
 from asyncio import get_event_loop, wait
 from json import dumps, loads
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger(__name__)
 class WebProcess(Process, websockets.WebSocketServer):
     def __init__(self, pipe, **kwargs):
         super(WebProcess, self).__init__()
@@ -55,7 +59,7 @@ class WebProcess(Process, websockets.WebSocketServer):
                         self.STATE["value"] += 1
                         await self.notify_state()
                 else:
-                    print("unsupported event: %s" % str(data))
+                    logger.warning("unsupported event: %s" % str(data))
         finally:
             await self.unregister(websocket)
             
@@ -64,10 +68,9 @@ class WebProcess(Process, websockets.WebSocketServer):
             await stop
 
     def run(self):
-        from signal import SIGTERM, SIGINT, SIGKILL
+        from signal import SIGTERM, SIGINT
         loop = get_event_loop()
         stop = loop.create_future()
-        loop.add_signal_handler(SIGKILL, stop.set_result, None)
         loop.add_signal_handler(SIGINT, stop.set_result, None)
         loop.add_signal_handler(SIGTERM, stop.set_result, None)
         loop.run_until_complete(self.server(stop))
