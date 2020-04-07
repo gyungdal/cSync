@@ -5,6 +5,7 @@ from aioconsole import ainput
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
+
 def get_broadcast_ip() -> str :
     from sys import platform
     import netifaces as ni
