@@ -12,9 +12,10 @@ def signalHandler(signum : int, frame):
 clients = list()
 
 class DaemonProtocol:
-    def load_module(self, module_name : str) -> object:
-        logger.info("import module {0}".format(module_name))
-        return __import__("{0}".format(module_name), fromlist=[module_name])
+    def load_module(self, module_name : str, class_name : str):
+        logger.info("import module {0} : {1}".format(module_name, class_name))
+        temp = __import__(module_name, fromlist=[module_name])
+        return getattr(temp, class_name)
 
     def connection_made(self, transport):
         self.transport = transport
@@ -32,7 +33,7 @@ class DaemonProtocol:
             if "action" in message.keys():
                 if message["action"] == "handshake":
                     if len(clients) <= 0:
-                        thread = self.load_module("camera_thread")["CameraThread"](message["url"])
+                        thread = self.load_module("camera_thread", "CameraThread")(message["url"])
                         clients.add(thread)
                         thread.start()
         finally:
