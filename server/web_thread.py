@@ -79,5 +79,7 @@ class WebThread(websockets.WebSocketServer):
             await self.unregister(websocket)
     
     async def server(self, stop):
+        logger.debug("server start")
         async with websockets.serve(self.response, "0.0.0.0", 8000):
             await stop
+        logger.debug("server done")
