@@ -1,0 +1,3 @@
+asyncio==3.4.3
+ntplib==0.3.3
+websockets==8.1

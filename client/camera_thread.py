@@ -6,6 +6,7 @@ from io import BytesIO
 from byte64 import b64encode
 import ntplib 
 import picamera
+from time import time
 import time
 import logging
 
@@ -30,6 +31,8 @@ class CameraThread(Thread):
     async def capture(self, ws, command):
         paramter = command["parameter"]
         stream = BytesIO()
+        while paramter["time"] <= (time() * 1000):
+            pass
         self.camera.capture(stream, paramter["format"])
         command["parameter"]["data"] = b64encode(stream.getvalue()).decode()
         ws.send(dumps(command))
