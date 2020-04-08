@@ -1,14 +1,14 @@
 import websockets
-from multiprocessing import Process, Pipe
+from threading import Thread
 from asyncio import get_event_loop, wait
 from json import dumps, loads
 import logging
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-class WebProcess(Process, websockets.WebSocketServer):
+class WebProcess(Thread, websockets.WebSocketServer):
     def __init__(self, recv_pipe, **kwargs):
-        super(WebProcess, self).__init__()
+        Thread.__init__(self)
         self.recv_pipe = recv_pipe
         self.kwargs = kwargs
         self.socket = list()
@@ -65,7 +65,28 @@ class WebProcess(Process, websockets.WebSocketServer):
                     logger.warning("unsupported event: %s" % str(data))
         finally:
             await self.unregister(websocket)
-            
+    
+    async def capture(self): 
+        pass
+
+    async def timesync(self): 
+        pass
+
+    async def setup(self): 
+        pass
+
+    async def setId(self): 
+        pass
+
+    async def getId(self): 
+        pass
+    
+    async def status(self): 
+        pass
+
+    async def version(self): 
+        pass
+
     async def server(self, stop):
         async with websockets.serve(self.echo, "0.0.0.0", 8000):
             await stop
@@ -76,5 +97,9 @@ class WebProcess(Process, websockets.WebSocketServer):
         stop = loop.create_future()
         loop.add_signal_handler(SIGINT, stop.set_result, None)
         loop.add_signal_handler(SIGTERM, stop.set_result, None)
-        loop.run_until_complete(self.server(stop))
-        loop.run_forever()
+        try:
+            loop.run_until_complete(self.server(stop))
+            loop.run_forever()
+        finally:
+            loop.run_until_complete(loop.shutdown_asyncgens())
+            loop.close()

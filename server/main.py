@@ -45,15 +45,15 @@ def close():
 async def main():
     recv_pipe, send_pipe = Pipe()
     web = WebProcess(send_pipe)
-    web.start()
+    web.start() 
     FLAG = True
     while FLAG:
-        MENU = "b : broadcast\nc : shutdown"
         line : str = await ainput(MENU)
         HANDLER = {
-            'b' : find_device
+            'broadcast' : find_device,
+            'capture' : web.capture,
+
         }
-        web.send_command()
         line = line.strip().lower()
         if line in HANDLER.keys():
             HANDLER[line]()
