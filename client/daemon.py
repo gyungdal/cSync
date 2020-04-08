@@ -1,7 +1,6 @@
 import signal 
 import logging
 from sys import exit
-from camera_thread import CameraThread
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -34,8 +33,9 @@ class DaemonProtocol:
                 if message["action"] == "handshake":
                     if len(clients) <= 0:
                         thread = self.load_module("camera_thread", "CameraThread")(message["url"])
-                        clients.add(thread)
+                        clients.append(thread)
                         thread.start()
+                        
         finally:
             pass
 
@@ -44,6 +44,7 @@ class DaemonProtocol:
         self.transport.close()
 
 async def main():
+    global clients
     from asyncio import get_running_loop, sleep
     loop = get_running_loop()
     transport, protocol = await loop.create_datagram_endpoint(
@@ -52,6 +53,10 @@ async def main():
     )
 
     try:
+        for client in clients:
+            if client.isAlive():
+                client.handled = True
+        clients = [t for t in clients if not t.handled]
         await sleep(3600)
     finally:
         logger.error("transport close")
