@@ -28,8 +28,8 @@ class DaemonProtocol:
             decode_data = decode_data.replace("'", '"')
             logger.info('decode data : %s' % decode_data)
             message = loads(decode_data)
-            logger.debug('Received %r from %s'.format(str(message), addr))
-            if hasattr(message, "action"):
+            logger.debug('Received %r from %s' % (str(message), addr))
+            if "action" in message.keys():
                 if message["action"] == "handshake":
                     if len(clients) <= 0:
                         thread = self.load_module("camera_thread")["CameraThread"](message["url"])
