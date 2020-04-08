@@ -16,6 +16,7 @@ class CameraThread(Thread):
     def __init__(self, url, **kwargs):
         Thread.__init__(self)
         self.daemon = True
+        self.url = url
         self.loop = get_event_loop()
         self.logger = logging.getLogger(__name__)
         self.parameter = dict()
@@ -61,7 +62,7 @@ class CameraThread(Thread):
             "timesync" : self.timesync,
             "setup" : self.setup
         }
-        async with websockets.connect(self.uri) as websocket:
+        async with websockets.connect(self.url) as websocket:
             command = loads(str(await websocket.recv()))
             if hasattr(command, "action"):
                 HANDLE[command["action"]](websocket, command)
