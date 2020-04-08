@@ -11,7 +11,7 @@ class ResponseHandler:
         from os import path, mkdir
         from base64 import b64decode
         current_path = path.dirname(path.abspath(__file__))
-        self.logger.info(f"[{id}] capture : {float(packet["parameter"]["time"])}\t format : {packet['parameter']['format']}")
+        self.logger.info(f"[{id}] capture : {float(packet['parameter']['time'])}\t format : {packet['parameter']['format']}")
         file_name = f"{id}.{packet['parameter']['format']}"
         full_path = path.join(current_path, packet["parameter"]["time"], file_name)
         dir_path = path.dirname(full_path)
@@ -27,7 +27,7 @@ class ResponseHandler:
         self.logger.info(f"getId : {packet['parameter']['id']}")
     
     async def status(self, id : str, packet : dict): 
-        self.logger.debug(f"Status : {dumps(packet['parameter']}")
+        self.logger.debug(f"Status : {dumps(packet['parameter'])}")
 
     async def setup(self, id : str, packet : dict): 
-        self.logger.info(f"Setup : {dumps(packet['parameter']}")
+        self.logger.info(f"Setup : {dumps(packet['parameter'])}")
