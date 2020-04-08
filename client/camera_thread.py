@@ -66,11 +66,6 @@ class CameraThread(Thread):
             if hasattr(command, "action"):
                 HANDLE[command["action"]](websocket, command)
 
-    def stop(self):
-        self.loop.stop()
-        self.loop.run_until_complete(self.loop.shutdown_asyncgens())
-        self.loop.close()
-
     def run(self):
-        self.loop.run_until_complete(self.waitCommand())
-        self.loop.run_forever()
+        from asyncio import run
+        run(self.waitCommand())
