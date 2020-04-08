@@ -4,6 +4,8 @@ from threading import Thread
 from asyncio import get_event_loop, wait
 from json import dumps, loads
 import logging
+import RequestPacket
+from ResponseHandler import ResponseHandler
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -11,6 +13,14 @@ logger = logging.getLogger(__name__)
 class WebThread(Thread, websockets.WebSocketServer):
     def __init__(self, recv_pipe, **kwargs):
         Thread.__init__(self)
+        self.handler = ResponseHandler()
+        self.HANDLER_MAP = {
+            "capture" : self.handler.capture,
+            "getId" : self.handler.getId,
+            "status" : self.handler.status,
+            "timesync" : self.handler.timesync,
+            "setup" : self.handler.setup
+        }
         self.recv_pipe = recv_pipe
         self.kwargs = kwargs
         self.socket = list()
@@ -30,53 +40,26 @@ class WebThread(Thread, websockets.WebSocketServer):
 
     async def register(self, websocket):
         self.users[websocket] = uuid4()
-        websocket.send()
+        packet = RequestPacket.SetIdPacket(self.users[websocket])
+        await websocket.send(packet.toJson())
 
     async def unregister(self, websocket):
         del self.users[websocket]
     
-    async def echo(self, websocket, path):
+    async def response(self, websocket, path):
         await self.register(websocket)
         try:
             async for message in websocket:
-                data : object = loads(message)
-                if "action" in data.keys():
-                    if data["action"] == "minus":
-                        self.STATE["value"] -= 1
-                        await self.notify_state()
-                    elif data["action"] == "plus":
-                        self.STATE["value"] += 1
-                        await self.notify_state()
+                packet : dict = loads(message)
+                if packet["action"] in self.HANDLER_MAP.keys():
+                    await self.HANDLER_MAP[packet["action"]](packet)
                 else:
-                    logger.warning("unsupported event: %s" % str(data))
+                    logger.warning("unsupported event: %s" % str(packet))
         finally:
             await self.unregister(websocket)
     
-
-    # 여기서 부터는 받아 올때 쓰는 핸들러들
-    async def capture(self): 
-        pass
-
-    async def timesync(self): 
-        pass
-
-    async def setup(self): 
-        pass
-
-    async def setId(self): 
-        pass
-
-    async def getId(self): 
-        pass
-    
-    async def status(self): 
-        pass
-
-    async def version(self): 
-        pass
-
     async def server(self, stop):
-        async with websockets.serve(self.echo, "0.0.0.0", 8000):
+        async with websockets.serve(self.response, "0.0.0.0", 8000):
             await stop
 
     def run(self):
