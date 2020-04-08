@@ -27,7 +27,7 @@ def get_broadcast_ip() -> str :
     return broadcast_ip
 
 
-def find_device():
+async def find_device():
     from json import dumps
     import socket
     message = {}
@@ -46,12 +46,10 @@ def find_device():
 def close():
     return False
 
-async def main():
-    web = WebThread()
-    web.start() 
+async def main(stop):
     FLAG = True
     while FLAG:
-        line : str = await ainput("input command")
+        line : str = await ainput("input command : ")
         HANDLER = {
             'broadcast' : find_device,
             'capture' : web.capture,
@@ -60,11 +58,13 @@ async def main():
             'status' : web.status,
             'getId' : web.getId,
         }
-        line = line.strip().lower()
+        line = line.strip()
         if line in HANDLER.keys():
-            HANDLER[line]()
-        elif line in ['c']:
-            FLAG = False
+            await HANDLER[line]()
+        elif line == "exit":
+            from os import kill, getpid
+            from signal import SIGINT
+            kill(getpid(), SIGINT)
         else:
             logger.warning("no handler : '%s'" % line)
 
@@ -73,15 +73,20 @@ if __name__ == "__main__":
     from asyncio import new_event_loop, set_event_loop
     #signal.signal(signal.SIGKILL, signalHandler)
     loop = new_event_loop()
-    set_event_loop(loop)
+    stop = loop.create_future()
+    loop.add_signal_handler(signal.SIGINT, stop.set_result, None)
+    loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
     def signalHandler(signum, frame):
         logger.critical("Exit Signal %d" % signum)
         exit()
 
     signal.signal(signal.SIGINT, signalHandler)
     signal.signal(signal.SIGTERM, signalHandler)
+
+    web = WebThread()
     try:
-        loop.run_until_complete(main())
+        loop.run_until_complete(main(stop))
+        loop.run_until_complete(web.serve(stop))
     finally:
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()

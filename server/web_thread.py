@@ -1,6 +1,5 @@
 import websockets
 from uuid import uuid4
-from threading import Thread
 from asyncio import get_event_loop, wait
 from json import dumps, loads
 import logging
@@ -10,9 +9,8 @@ from ResponseHandler import ResponseHandler
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-class WebThread(Thread, websockets.WebSocketServer):
-    def __init__(self, recv_pipe, **kwargs):
-        Thread.__init__(self)
+class WebThread(websockets.WebSocketServer):
+    def __init__(self, **kwargs):
         self.handler = ResponseHandler()
         self.HANDLER_MAP = {
             "capture" : self.handler.capture,
@@ -21,9 +19,7 @@ class WebThread(Thread, websockets.WebSocketServer):
             "timesync" : self.handler.timesync,
             "setup" : self.handler.setup
         }
-        self.recv_pipe = recv_pipe
         self.kwargs = kwargs
-        self.socket = list()
         self.users = dict()
 
     async def send_command_all(self, command : BasePacket):
@@ -85,16 +81,3 @@ class WebThread(Thread, websockets.WebSocketServer):
     async def server(self, stop):
         async with websockets.serve(self.response, "0.0.0.0", 8000):
             await stop
-
-    def run(self):
-        from signal import SIGTERM, SIGINT
-        loop = get_event_loop()
-        stop = loop.create_future()
-        loop.add_signal_handler(SIGINT, stop.set_result, None)
-        loop.add_signal_handler(SIGTERM, stop.set_result, None)
-        try:
-            loop.run_until_complete(self.server(stop))
-            loop.run_forever()
-        finally:
-            loop.run_until_complete(loop.shutdown_asyncgens())
-            loop.close()
