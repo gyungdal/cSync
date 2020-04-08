@@ -31,7 +31,7 @@ class DaemonProtocol:
             logger.debug('Received %r from %s'.format(str(message), addr))
             if hasattr(message, "action"):
                 if message["action"] == "handshake":
-                    thread = CameraThread(message["url"])
+                    thread = self.load_module("camera_thread")["CameraThread"](message["url"])
                     clients.add(thread)
                     thread.start()
     
