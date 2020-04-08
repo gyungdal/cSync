@@ -1,7 +1,7 @@
 import signal 
 import logging
 from multiprocessing import Pipe
-from web_thread import WebProcess
+from web_thread import WebThread
 from sys import exit
 from aioconsole import ainput
 
@@ -43,14 +43,17 @@ def close():
     return False
 
 async def main():
-    recv_pipe, send_pipe = Pipe()
-    web = WebProcess(send_pipe)
+    web = WebThread()
     web.start() 
     FLAG = True
     while FLAG:
-        line : str = await ainput(MENU)
+        line : str = await ainput("input command")
         HANDLER = {
             'broadcast' : find_device,
+            'capture' : web.capture,
+            'capture' : web.capture,
+            'capture' : web.capture,
+            'capture' : web.capture,
             'capture' : web.capture,
 
         }

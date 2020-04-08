@@ -1,4 +1,5 @@
 import websockets
+from uuid import uuid4
 from threading import Thread
 from asyncio import get_event_loop, wait
 from json import dumps, loads
@@ -6,52 +7,37 @@ import logging
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-class WebProcess(Thread, websockets.WebSocketServer):
+
+class WebThread(Thread, websockets.WebSocketServer):
     def __init__(self, recv_pipe, **kwargs):
         Thread.__init__(self)
         self.recv_pipe = recv_pipe
         self.kwargs = kwargs
         self.socket = list()
         self.STATE = {"value": 0}
-        self.USERS = set()
-
+        self.users = dict()
 
     def state_event(self):
         return dumps({"type": "state", **self.STATE})
 
-
     def users_event(self):
-        return dumps({"type": "users", "count": len(self.USERS)})
+        return dumps({"type": "users", "count": len(self.users)})
 
-
-    async def notify_state(self):
-        if self.USERS:
-            message = self.state_event()
-            await wait([user.send(message) for user in self.USERS])
-
-
-    async def notify_users(self):
-        if self.USERS:
-            message = self.users_event()
-            await wait([user.send(message) for user in self.USERS])
-
-    async def send_command(self, command):
-        if self.USERS and command:
+    async def send_command_all(self, command):
+        if self.users and command:
             message = dumps(command)
-            await wait([user.send(message) for user in self.USERS])
+            await wait([user.send(message) for user in self.users])
 
     async def register(self, websocket):
-        self.USERS.add(websocket)
-        await self.notify_users()
+        self.users[websocket] = uuid4()
+        websocket.send()
 
     async def unregister(self, websocket):
-        self.USERS.remove(websocket)
-        await self.notify_users()
+        del self.users[websocket]
     
     async def echo(self, websocket, path):
         await self.register(websocket)
         try:
-            await websocket.send(self.state_event())
             async for message in websocket:
                 data : object = loads(message)
                 if "action" in data.keys():
@@ -66,6 +52,8 @@ class WebProcess(Thread, websockets.WebSocketServer):
         finally:
             await self.unregister(websocket)
     
+
+    # 여기서 부터는 받아 올때 쓰는 핸들러들
     async def capture(self): 
         pass
 
