@@ -45,6 +45,14 @@ class WebThread(Thread, websockets.WebSocketServer):
     async def status(self):
         await self.send_command_all(StatusPacket())
 
+    async def capture(self):
+        from time import time
+        parameter = dict()
+        parameter["time"] = ((time() + 5) * 1000)
+        parameter["format"] = "png"
+        CapturePacket(parameter)
+        await self.send_command_all(StatusPacket())
+
     async def setup(self):
         parameter = {
             'awb_mode' : "auto",
@@ -68,7 +76,7 @@ class WebThread(Thread, websockets.WebSocketServer):
             async for message in websocket:
                 packet : dict = loads(message)
                 if packet["action"] in self.HANDLER_MAP.keys():
-                    await self.HANDLER_MAP[packet["action"]](packet)
+                    await self.HANDLER_MAP[packet["action"]](self.users[websocket], packet)
                 else:
                     logger.warning("unsupported event: %s" % str(packet))
         finally:
