@@ -26,7 +26,7 @@ class CameraThread(Thread):
         c = ntplib.NTPClient() 
         response = c.request(timeServer, version=3) 
         self.parameter["timediff"] = response.offset
-        self.logger.debug("timediff : %f" % response.offset)
+        self.logger.debug(f"timediff : {response.offset}")
 
     async def capture(self, ws, command):
         paramter = command["parameter"]
@@ -40,11 +40,11 @@ class CameraThread(Thread):
     async def setId(self, ws, command):
         if hasattr(command["parameter"], "id"):
             self.parameter["id"] = command["parameter"]["id"]
-        self.logger.info("setId : %s" % self["parameter"]["id"])
+        self.logger.info(f"setId : {self['parameter']['id']}")
 
     async def getId(self, ws, command):
         command["parameter"]["id"] = self.parameter["id"]
-        self.logger.info("getId : %s" % dumps(command))
+        self.logger.info(f"getId : {dumps(command)}")
         ws.send(dumps(command))
 
     async def setup(self, ws, command):

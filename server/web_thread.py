@@ -74,7 +74,7 @@ class WebThread(websockets.WebSocketServer):
                 if packet["action"] in self.HANDLER_MAP.keys():
                     await self.HANDLER_MAP[packet["action"]](self.users[websocket], packet)
                 else:
-                    logger.warning("unsupported event: %s" % str(packet))
+                    logger.warning(f"unsupported event: {str(packet)}")
         finally:
             await self.unregister(websocket)
     

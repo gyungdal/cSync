@@ -6,15 +6,15 @@ from camera_thread import CameraThread
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 def signalHandler(signum : int, frame):
-    logger.critical("Exit Signal %d".format(signum))
+    logger.critical("Exit Signal %d" % signum)
     exit()
 
 clients = list()
 
 class DaemonProtocol:
     def load_module(self, module_name : str) -> object:
-        logger.info("import module %s".format(module_name))
-        return __import__('%s'.format(module_name), fromlist=[module_name])
+        logger.info("import module {0}".format(module_name))
+        return __import__("{0}".format(module_name), fromlist=[module_name])
 
     def connection_made(self, transport):
         self.transport = transport
@@ -26,9 +26,9 @@ class DaemonProtocol:
         try:
             decode_data = str(data.decode())
             decode_data = decode_data.replace("'", '"')
-            logger.info('decode data : %s' % decode_data)
+            logger.info('decode data : {0}'.format(decode_data))
             message = loads(decode_data)
-            logger.debug('Received %r from %s' % (str(message), addr))
+            logger.debug('Received {0} from {1}'.format(str(message), addr))
             if "action" in message.keys():
                 if message["action"] == "handshake":
                     if len(clients) <= 0:
@@ -39,7 +39,7 @@ class DaemonProtocol:
             pass
 
     def connection_lost(self, exc):
-        logger.error("connection lost %s" % exc)
+        logger.error("connection lost {0}".format(exc))
         self.transport.close()
 
 async def main():
