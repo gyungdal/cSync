@@ -3,7 +3,7 @@ from threading import Thread
 from asyncio import get_event_loop, wait
 from json import dumps, loads
 from io import BytesIO
-from byte64 import b64encode
+from base64 import b64encode
 import ntplib 
 import picamera
 from time import time

@@ -31,14 +31,16 @@ class DaemonProtocol:
             logger.debug('Received %r from %s'.format(str(message), addr))
             if hasattr(message, "action"):
                 if message["action"] == "handshake":
-                    thread = self.load_module("camera_thread")["CameraThread"](message["url"])
-                    clients.add(thread)
-                    thread.start()
-    
+                    if len(clients) <= 0:
+                        thread = self.load_module("camera_thread")["CameraThread"](message["url"])
+                        clients.add(thread)
+                        thread.start()
+        finally:
+            pass
+
     def connection_lost(self, exc):
         logger.error("connection lost %s" % exc)
         self.transport.close()
-
 
 async def main():
     from asyncio import get_running_loop, sleep
