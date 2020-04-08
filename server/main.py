@@ -1,5 +1,7 @@
 import signal 
 import logging
+from multiprocessing import Pipe
+from web_thread import WebProcess
 from sys import exit
 from aioconsole import ainput
 
@@ -41,6 +43,9 @@ def close():
     return False
 
 async def main():
+    recv_pipe, send_pipe = Pipe()
+    web = WebProcess(send_pipe)
+    web.start()
     FLAG = True
     while FLAG:
         MENU = "b : broadcast\nc : shutdown"
@@ -48,7 +53,7 @@ async def main():
         HANDLER = {
             'b' : find_device
         }
-
+        web.send_command()
         line = line.strip().lower()
         if line in HANDLER.keys():
             HANDLER[line]()

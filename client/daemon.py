@@ -1,6 +1,7 @@
 import signal 
 import logging
 from sys import exit
+from . import camera_thread
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
@@ -39,7 +40,7 @@ async def main():
     )
 
     try:
-        await sleep(3600) #serve 3600 seconds
+        await sleep(3600)
     finally:
         logger.error("transport close")
         transport.close()
@@ -48,5 +49,4 @@ if __name__ == "__main__":
     from asyncio import run
     signal.signal(signal.SIGINT, signalHandler)
     signal.signal(signal.SIGTERM, signalHandler)
-    #signal.signal(signal.SIGKILL, signalHandler)
     run(main())

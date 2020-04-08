@@ -7,9 +7,9 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 class WebProcess(Process, websockets.WebSocketServer):
-    def __init__(self, pipe, **kwargs):
+    def __init__(self, recv_pipe, **kwargs):
         super(WebProcess, self).__init__()
-        self.pipe = pipe
+        self.recv_pipe = recv_pipe
         self.kwargs = kwargs
         self.socket = list()
         self.STATE = {"value": 0}
@@ -25,21 +25,24 @@ class WebProcess(Process, websockets.WebSocketServer):
 
 
     async def notify_state(self):
-        if self.USERS:  # asyncio.wait doesn't accept an empty list
+        if self.USERS:
             message = self.state_event()
             await wait([user.send(message) for user in self.USERS])
 
 
     async def notify_users(self):
-        if self.USERS:  # asyncio.wait doesn't accept an empty list
+        if self.USERS:
             message = self.users_event()
             await wait([user.send(message) for user in self.USERS])
 
+    async def send_command(self, command):
+        if self.USERS and command:
+            message = dumps(command)
+            await wait([user.send(message) for user in self.USERS])
 
     async def register(self, websocket):
         self.USERS.add(websocket)
         await self.notify_users()
-
 
     async def unregister(self, websocket):
         self.USERS.remove(websocket)
@@ -75,8 +78,3 @@ class WebProcess(Process, websockets.WebSocketServer):
         loop.add_signal_handler(SIGTERM, stop.set_result, None)
         loop.run_until_complete(self.server(stop))
         loop.run_forever()
-
-parent_conn, child_conn = Pipe()
-web = WebProcess(child_conn)
-web.start()
-web.join()
