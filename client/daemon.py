@@ -1,13 +1,15 @@
 import signal 
 import logging
 from sys import exit
-from . import camera_thread
+from camera_thread import CameraThread
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 def signalHandler(signum : int, frame):
     logger.critical("Exit Signal %d".format(signum))
     exit()
+
+clients = list()
 
 class DaemonProtocol:
     def load_module(self, module_name : str) -> object:
@@ -19,12 +21,19 @@ class DaemonProtocol:
         logger.debug("create transport")
 
     def datagram_received(self, data, addr):
+        global clients
         from json import loads
-        decode_data = str(data.decode())
-        decode_data = decode_data.replace("'", '"')
-        logger.info('decode data : %s' % decode_data)
-        message = loads(decode_data)
-        logger.debug('Received %r from %s'.format(str(message), addr))
+        try:
+            decode_data = str(data.decode())
+            decode_data = decode_data.replace("'", '"')
+            logger.info('decode data : %s' % decode_data)
+            message = loads(decode_data)
+            logger.debug('Received %r from %s'.format(str(message), addr))
+            if hasattr(message, "action"):
+                if message["action"] == "handshake":
+                    thread = CameraThread(message["url"])
+                    clients.add(thread)
+                    thread.start()
     
     def connection_lost(self, exc):
         logger.error("connection lost %s" % exc)

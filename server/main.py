@@ -7,8 +7,7 @@ from aioconsole import ainput
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-def get_broadcast_ip() -> str :
+def get_local_ip() -> str:
     from sys import platform
     import netifaces as ni
     ifname = "eth0"
@@ -17,6 +16,10 @@ def get_broadcast_ip() -> str :
     ni.ifaddresses(ifname)
     local_ip = ni.ifaddresses(ifname)[ni.AF_INET][0]['addr']
     logger.info("local ip : %s" % local_ip)
+    return local_ip
+
+def get_broadcast_ip() -> str :
+    local_ip = get_local_ip()
     local_ip_split = local_ip.split('.')
     local_ip_split[3] = '255'
     broadcast_ip : str = '.'.join(local_ip_split)
@@ -28,7 +31,8 @@ def find_device():
     from json import dumps
     import socket
     message = {}
-    message['test'] = "value"
+    message['action'] = "handshake"
+    message['url'] = ("ws://%s:8000" % get_local_ip())
     data = dumps(message)
     broadcast_ip = get_broadcast_ip()
     server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -51,11 +55,10 @@ async def main():
         HANDLER = {
             'broadcast' : find_device,
             'capture' : web.capture,
-            'capture' : web.capture,
-            'capture' : web.capture,
-            'capture' : web.capture,
-            'capture' : web.capture,
-
+            'setup' : web.setup,
+            'timesync' : web.timesync,
+            'status' : web.status,
+            'getId' : web.getId,
         }
         line = line.strip().lower()
         if line in HANDLER.keys():

@@ -4,7 +4,7 @@ from threading import Thread
 from asyncio import get_event_loop, wait
 from json import dumps, loads
 import logging
-import RequestPacket
+from RequestPacket import *
 from ResponseHandler import ResponseHandler
 
 logging.basicConfig(level=logging.DEBUG)
@@ -24,27 +24,43 @@ class WebThread(Thread, websockets.WebSocketServer):
         self.recv_pipe = recv_pipe
         self.kwargs = kwargs
         self.socket = list()
-        self.STATE = {"value": 0}
         self.users = dict()
 
-    def state_event(self):
-        return dumps({"type": "state", **self.STATE})
-
-    def users_event(self):
-        return dumps({"type": "users", "count": len(self.users)})
-
-    async def send_command_all(self, command):
+    async def send_command_all(self, command : BasePacket):
         if self.users and command:
             message = dumps(command)
             await wait([user.send(message) for user in self.users])
 
     async def register(self, websocket):
         self.users[websocket] = uuid4()
-        packet = RequestPacket.SetIdPacket(self.users[websocket])
+        packet = SetIdPacket(self.users[websocket])
         await websocket.send(packet.toJson())
 
     async def unregister(self, websocket):
         del self.users[websocket]
+
+    async def getId(self):
+        await self.send_command_all(GetIdPacket())
+
+    async def status(self):
+        await self.send_command_all(StatusPacket())
+
+    async def setup(self):
+        parameter = {
+            'awb_mode' : "auto",
+            "brightness" : 50,
+            "exif_tags" : {
+                'EXIF.UserComments' : 'Copyright (c) 2020 Gyeongsik Kim'
+            },
+            "exposure_mode" : "auto",
+            "flash_mode" : "auto"
+        }
+        packet = SetupPacket(parameter)
+        await self.send_command_all(packet)
+    
+    async def timesync(self):
+        packet = TimeSyncPacket()
+        await self.send_command_all(packet)
     
     async def response(self, websocket, path):
         await self.register(websocket)
