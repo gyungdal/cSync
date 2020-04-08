@@ -1,5 +1,5 @@
 import logging
-
+from json import loads, dumps
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -10,7 +10,7 @@ class ResponseHandler:
     async def capture(self, id : str, packet : dict): 
         from os import path, mkdir
         from base64 import b64decode
-        current_path = path.dirname(os.path.abspath(__file__))
+        current_path = path.dirname(path.abspath(__file__))
         self.logger.info("[%s] capture : %f\t format : %s" % (id, float(packet["parameter"]["time"]), packet["parameter"]["format"]))
         file_name = "%s.%s" % (id, packet["parameter"]["format"])
         full_path = path.join(current_path,  packet["parameter"]["time"], file_name)
