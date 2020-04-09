@@ -28,7 +28,7 @@ class WebThread(websockets.WebSocketServer):
             await wait([user.send(message) for user in self.users])
 
     async def register(self, websocket):
-        self.users[websocket] = uuid4()
+        self.users[websocket] = str(uuid4())
         packet = SetIdPacket(self.users[websocket])
         await websocket.send(packet.toJson())
 

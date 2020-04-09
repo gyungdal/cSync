@@ -70,8 +70,9 @@ async def main(stop):
 
 
 if __name__ == "__main__":
-    from asyncio import new_event_loop, set_event_loop
-    loop = new_event_loop()
+    from asyncio import get_event_loop, gather
+
+    loop = get_event_loop()
     stop = loop.create_future()
     loop.add_signal_handler(signal.SIGINT, stop.set_result, None)
     loop.add_signal_handler(signal.SIGTERM, stop.set_result, None)
@@ -84,7 +85,8 @@ if __name__ == "__main__":
 
     web = WebThread()
     try:
-        loop.gather(main(stop), web.serve(stop))
+        tasks = gather(main(stop), web.server(stop))
+        loop.run_until_complete(tasks)
     finally:
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
