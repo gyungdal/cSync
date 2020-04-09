@@ -47,6 +47,11 @@ class SetupPacket(BasePacket):
         self.action = "setup"
         self.parameter = parameter.copy()
 
+class PreparePacket(BasePacket):
+    def __init__(self):
+        BasePacket.__init__(self)
+        self.action = "prepare"
+
 class CapturePacket(BasePacket):
     def __init__(self, parameter : dict):
         BasePacket.__init__(self)

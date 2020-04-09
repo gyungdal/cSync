@@ -76,6 +76,11 @@ class WebThread(websockets.WebSocketServer):
         packet = TimeSyncPacket()
         await self.send_command_all(packet)
     
+    async def prepare(self):
+        logger.debug(f"prepare")
+        packet = PreparePacket()
+        await self.send_command_all(packet)
+
     async def response(self, websocket, path):
         await self.register(websocket)
         try:

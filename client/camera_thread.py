@@ -66,7 +66,7 @@ class CameraThread(Thread):
         
         while True:
             await self.focusing(focal_distance)
-            val = await self.calculation(self.camera)
+            val = await self.calculation()
             if val > max_value:
                 max_index = focal_distance
                 max_value = val
@@ -84,12 +84,17 @@ class CameraThread(Thread):
         self.logger.debug("focusing done")
         self.camera.resolution = (2592,1944)
 
+    async def prepare(self, ws, command):
+        await self.prepare_capture()
+        command["parameter"]["id"] = self.parameter["id"]
+        command["parameter"]["status"] = "done"
+        await ws.send(dumps(command))
+
     async def capture(self, ws, command):
         parameter = command["parameter"]
         #time offset 설정 안돼있으면 설정
         if "timediff" not in self.parameter.keys():
             await self.timesync(ws, command)
-        await self.prepare_capture()
         timediff = (self.parameter["timediff"] * 1000)
         stream = BytesIO()
         while (parameter["time"] - timediff) <= (time() * 1000):
@@ -118,6 +123,7 @@ class CameraThread(Thread):
         FLAG = True
         
         HANDLE = {
+            "prepare" : self.prepare,
             "setId" : self.setId,
             "getId" : self.getId,
             "capture" : self.capture,
