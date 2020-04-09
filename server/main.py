@@ -46,7 +46,7 @@ async def find_device():
 def close():
     return False
 
-async def main(stop):
+async def main(stop, web : WebThread):
     FLAG = True
     while FLAG:
         line : str = await ainput("input command : ")
@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
     web = WebThread()
     try:
-        tasks = gather(main(stop), web.server(stop))
+        tasks = gather(main(stop, web), web.server(stop))
         loop.run_until_complete(tasks)
     finally:
         loop.run_until_complete(loop.shutdown_asyncgens())
