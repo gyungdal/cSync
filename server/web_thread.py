@@ -1,7 +1,7 @@
 import websockets
 from uuid import uuid4
 from asyncio import get_event_loop, wait
-from json import dumps, loads
+from pickle import dumps, loads
 import logging
 from RequestPacket import *
 from ResponseHandler import ResponseHandler
@@ -84,8 +84,8 @@ class WebThread(websockets.WebSocketServer):
     async def response(self, websocket, path):
         await self.register(websocket)
         try:
-            while True:
-                packet = loads(websocket.recv())
+            async for message in websocket:
+                packet = loads(message)
                 if packet["action"] in self.HANDLER_MAP.keys():
                     await self.HANDLER_MAP[packet["action"]](self.users[websocket], packet)
                 else:
