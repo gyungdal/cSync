@@ -23,9 +23,10 @@ class WebThread(websockets.WebSocketServer):
         self.users = dict()
 
     async def send_command_all(self, command : BasePacket):
-        logger.debug(f"send command all {dumps(command)}")
+        js = command.toJson()
+        logger.debug(f"send command all {js}")
         if self.users and command:
-            await wait([user.send(message.toJson()) for user in self.users])
+            await wait([user.send(js) for user in self.users])
 
     async def register(self, websocket):
         self.users[websocket] = str(uuid4())
