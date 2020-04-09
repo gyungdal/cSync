@@ -55,6 +55,8 @@ class CameraThread(Thread):
                 self.camera[key] = parameter[key]
 
     async def waitCommand(self):
+        FLAG = True
+        
         HANDLE = {
             "setId" : self.setId,
             "getId" : self.getId,
@@ -62,10 +64,11 @@ class CameraThread(Thread):
             "timesync" : self.timesync,
             "setup" : self.setup
         }
-        async with websockets.connect(self.url) as websocket:
-            command = loads(str(await websocket.recv()))
+        ws = websockets.connect(self.url)
+        while FLAG:
+            command = loads(str(await ws.recv()))
             if hasattr(command, "action"):
-                HANDLE[command["action"]](websocket, command)
+                HANDLE[command["action"]](ws, command)
 
     def run(self):
         from asyncio import run
