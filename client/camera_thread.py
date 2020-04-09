@@ -131,14 +131,17 @@ class CameraThread(Thread):
             "timesync" : self.timesync,
             "setup" : self.setup
         }
-        ws = await websockets.connect(self.url, write_limit=MAX_PACKET_SIZE, read_limit=MAX_PACKET_SIZE, max_size=MAX_PACKET_SIZE)
-        ws_protocol = logging.getLogger('websockets.protocol')
-        ws_protocol.setLevel(logging.INFO)
-        while FLAG:
-            command = loads(await ws.recv())
-            self.logger.debug(dumps(command))
-            if "action" in command.keys():
-                await HANDLE[command["action"]](ws, command)
+        try:
+            ws = await websockets.connect(self.url, write_limit=MAX_PACKET_SIZE, read_limit=MAX_PACKET_SIZE, max_size=MAX_PACKET_SIZE)
+            ws_protocol = logging.getLogger('websockets.protocol')
+            ws_protocol.setLevel(logging.INFO)
+            while FLAG:
+                command = loads(await ws.recv())
+                self.logger.debug(dumps(command))
+                if "action" in command.keys():
+                    await HANDLE[command["action"]](ws, command)
+        finally:
+            self.camera.stop()
 
     def run(self):
         from asyncio import run
