@@ -101,7 +101,10 @@ class CameraThread(Thread):
         while (parameter["time"] - timediff) <= (time() * 1000):
             pass
         self.camera.capture(stream, parameter["format"])
-        command["parameter"]["data"] = b64encode(compress(stream.getvalue())).decode()
+        capture_bytes = stream.getvalue()
+        compress_capture_bytes = compress(capture_bytes)
+        self.logger.info(f"capture : {len(compress_capture_bytes)}bytes, {(len(compress_capture_bytes) / len(capture_bytes)) * 100} % compress") 
+        command["parameter"]["data"] = compress_capture_bytes.decode("utf-8")
         await ws.send(dumps(command))
     
     async def setId(self, ws, command):

@@ -21,7 +21,7 @@ class ResponseHandler:
         if not path.exists(dir_path) and not path.isdir(dir_path):
             mkdir(dir_path)
         with open(full_path, "wb") as f:
-            f.write(decompress(b64decode(packet["parameter"]["data"].encode("utf-8"))))
+            f.write(decompress(packet["parameter"]["data"].encode("utf-8")))
 
     async def timesync(self, id : str, packet : dict): 
         self.logger.info(f"[{id}] timesync : {float(packet['parameter']['timediff'])}")
