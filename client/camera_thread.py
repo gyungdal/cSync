@@ -54,6 +54,7 @@ class CameraThread(Thread):
     async def setup(self, ws, command):
         parameter = command["parameter"]
         for key in parameter.keys():
+            self.logger.info(f"{key} : {parameter[key]}")        
             self.camera[key] = parameter[key]
 
     async def waitCommand(self):
