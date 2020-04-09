@@ -35,7 +35,7 @@ class CameraThread(Thread):
         value = (val << 4) & 0x3ff0
         data1 = (value >> 8) & 0x3f
         data2 = value & 0xf0
-        system("i2cset -y 1 0x0c %d %d" % (data1,data2))
+        system(f"i2cset -y 1 0x0c {data1} {data2}")
         
     async def sobel(self, img):
         img_gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
