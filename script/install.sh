@@ -26,12 +26,9 @@ rm Python-3.7.7.tar.xz
 python -V
 
 update-alternatives --config python
-
 sudo pip3.7 install --upgrade pip
-sudo pip3.7 install picamera
-sudo pip3.7 install ntplib
-sudo pip3.7 install RPi.GPIO
-sudo pip3.7 install asyncio
+sudo apt-get install python3-opencv
+sudo pip3.7 install -r ../client/requirements.txt
 
 sudo echo '\ngpu_mem=256' >> /boot/config.txt
 
