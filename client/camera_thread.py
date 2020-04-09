@@ -103,7 +103,8 @@ class CameraThread(Thread):
         self.camera.capture(stream, parameter["format"])
         capture_bytes = stream.getvalue()
         compress_capture_bytes = compress(capture_bytes)
-        self.logger.info(f"capture : {len(compress_capture_bytes)}bytes, {(len(compress_capture_bytes) / len(capture_bytes)) * 100} % compress") 
+        compress_level = (100 - ((len(compress_capture_bytes) / len(capture_bytes)) * 100))
+        self.logger.info(f"capture : {len(compress_capture_bytes)}bytes, {compress_level} % reduce") 
         command["parameter"]["data"] = compress_capture_bytes
         await ws.send(dumps(command))
     

@@ -1,8 +1,10 @@
 sudo apt-get update
 sudo apt-get upgrade -y
 
+sudo apt-get update
+sudo apt-get install --no-install-recommends make build-essential libssl-dev zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 sudo apt install libhdf5-103 -y
-sudo apt-get install -y libatlas-base-dev libjasper-dev libqtgui4 python3-pyqt5 libqt4-test
+sudo apt-get install -y liblzma-dev libatlas-base-dev libjasper-dev libqtgui4 python3-pyqt5 libqt4-test
 sudo apt-get install build-essential tk-dev libncurses5-dev libncursesw5-dev libreadline6-dev libdb5.3-dev libgdbm-dev libsqlite3-dev libssl-dev libbz2-dev libexpat1-dev liblzma-dev zlib1g-dev libffi-dev -y
 sudo apt-get install -y libjpeg-dev libtiff5-dev libjasper-dev libpng12-dev libavcodec-dev libavformat-dev libswscale-dev libv4l-dev libxvidcore-dev libx264-dev libgtk2.0-dev libgtk-3-dev libatlas-base-dev gfortran
 wget https://www.python.org/ftp/python/3.7.7/Python-3.7.7.tar.xz
