@@ -10,6 +10,7 @@ from time import time
 import logging
 import cv2
 
+MAX_PACKET_SIZE = 1024 * 1024 * 1024 
 timeServer = 'time.windows.com' 
 logging.basicConfig(level=logging.DEBUG)
 class CameraThread(Thread):
@@ -133,7 +134,7 @@ class CameraThread(Thread):
             "timesync" : self.timesync,
             "setup" : self.setup
         }
-        ws = await websockets.connect(self.url)
+        ws = await websockets.connect(self.url, write_limit=MAX_PACKET_SIZE, read_limit=MAX_PACKET_SIZE, max_size=MAX_PACKET_SIZE)
         ws_protocol = logging.getLogger('websockets.protocol')
         ws_protocol.setLevel(logging.INFO)
         while FLAG:

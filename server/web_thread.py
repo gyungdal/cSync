@@ -9,6 +9,7 @@ from ResponseHandler import ResponseHandler
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
+MAX_PACKET_SIZE = 1024 * 1024 * 1024 
 class WebThread(websockets.WebSocketServer):
     def __init__(self, **kwargs):
         ws_protocol = logging.getLogger('websockets.protocol')
@@ -95,6 +96,6 @@ class WebThread(websockets.WebSocketServer):
     
     async def server(self, stop):
         logger.debug("server start")
-        async with websockets.serve(self.response, "0.0.0.0", 8000):
+        async with websockets.serve(ws_handler=self.response, host="0.0.0.0", port=8000, write_limit=MAX_PACKET_SIZE, read_limit=MAX_PACKET_SIZE, max_size=MAX_PACKET_SIZE):
             await stop
         logger.debug("server done")
