@@ -64,10 +64,11 @@ class CameraThread(Thread):
             "timesync" : self.timesync,
             "setup" : self.setup
         }
-        ws = websockets.connect(self.url)
+        ws = await websockets.connect(self.url)
         while FLAG:
             command = loads(str(await ws.recv()))
-            if hasattr(command, "action"):
+            self.logger.debug(dumps(command))
+            if "action" in command.keys():
                 HANDLE[command["action"]](ws, command)
 
     def run(self):
