@@ -1,4 +1,4 @@
-from json import dumps
+from pickle import dumps
 VERSION = 202004.0801
 
 class BasePacket:
@@ -7,7 +7,7 @@ class BasePacket:
         self.parameter = dict()
         self.action : str = ""
 
-    def toJson(self) -> str:
+    def toJson(self) -> bytes:
         return dumps({
             "version" : self.version,
             "action" : self.action,

@@ -1,7 +1,7 @@
 import websockets
 from threading import Thread
 from asyncio import get_event_loop, wait
-from json import dumps, loads
+from pickle import dumps, loads
 from io import BytesIO
 from base64 import b64encode
 import ntplib 
@@ -138,7 +138,7 @@ class CameraThread(Thread):
         ws_protocol = logging.getLogger('websockets.protocol')
         ws_protocol.setLevel(logging.INFO)
         while FLAG:
-            command = loads(str(await ws.recv()))
+            command = loads(await ws.recv())
             self.logger.debug(dumps(command))
             if "action" in command.keys():
                 await HANDLE[command["action"]](ws, command)

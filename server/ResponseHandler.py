@@ -1,5 +1,5 @@
 import logging
-from json import loads, dumps
+from pickle import loads, dumps
 
 logging.basicConfig(level=logging.DEBUG)
 
