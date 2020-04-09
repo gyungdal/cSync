@@ -35,7 +35,7 @@ class CameraThread(Thread):
         value = (val << 4) & 0x3ff0
         data1 = (value >> 8) & 0x3f
         data2 = value & 0xf0
-        await system("i2cset -y 0 0x0c %d %d" % (data1,data2))
+        system("i2cset -y 1 0x0c %d %d" % (data1,data2))
         
     async def sobel(self, img):
         img_gray = cv2.cvtColor(img,cv2.COLOR_RGB2GRAY)
@@ -81,6 +81,7 @@ class CameraThread(Thread):
             if focal_distance > 1000:
                 break
         await self.focusing(max_index)
+        self.logger.debug("focusing done")
         self.camera.resolution = (2592,1944)
 
     async def capture(self, ws, command):
