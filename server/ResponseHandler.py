@@ -10,15 +10,17 @@ class ResponseHandler:
     async def capture(self, id : str, packet : dict): 
         from os import path, mkdir
         from base64 import b64decode
+        from datetime import datetime
         current_path = path.dirname(path.abspath(__file__))
-        self.logger.info(f"[{id}] capture : {float(packet['parameter']['time'])}\t format : {packet['parameter']['format']}")
+        capture_time = str(datetime.utcfromtimestamp(float(packet['parameter']['time']) / 1000))
+        self.logger.info(f"[{id}] capture : {capture_time }\t format : {packet['parameter']['format']}")
         file_name = f"{id}.{packet['parameter']['format']}"
-        full_path = path.join(current_path, str(packet["parameter"]["time"]), file_name)
+        full_path = path.join(current_path, capture_time, file_name)
         dir_path = path.dirname(full_path)
         if not path.exists(dir_path) and not path.isdir(dir_path):
             mkdir(dir_path)
-        with open(full_path, "w+") as f:
-            f.write(b64decode(packet["parameter"]["data"].decode("utf-8")))
+        with open(full_path, "wb") as f:
+            f.write(b64decode(packet["parameter"]["data"].encode("utf-8")))
 
     async def timesync(self, id : str, packet : dict): 
         self.logger.info(f"[{id}] timesync : {float(packet['parameter']['timediff'])}")
