@@ -68,6 +68,8 @@ class CameraThread(Thread):
             "setup" : self.setup
         }
         ws = await websockets.connect(self.url)
+        ws_protocol = logging.getLogger('websockets.protocol')
+        ws_protocol.setLevel(logging.INFO)
         while FLAG:
             command = loads(str(await ws.recv()))
             self.logger.debug(dumps(command))

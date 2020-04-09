@@ -11,6 +11,8 @@ logger = logging.getLogger(__name__)
 
 class WebThread(websockets.WebSocketServer):
     def __init__(self, **kwargs):
+        ws_protocol = logging.getLogger('websockets.protocol')
+        ws_protocol.setLevel(logging.INFO)
         self.handler = ResponseHandler()
         self.HANDLER_MAP = {
             "capture" : self.handler.capture,
