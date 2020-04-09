@@ -49,7 +49,7 @@ class CameraThread(Thread):
         
     async def calculation(self):
         rawCapture = PiRGBArray(self.camera) 
-        await self.camera.capture(rawCapture,format="bgr", use_video_port=True)
+        self.camera.capture(rawCapture,format="bgr", use_video_port=True)
         image = rawCapture.array
         rawCapture.truncate(0)
         return await self.laplacian(image)
