@@ -39,9 +39,9 @@ class CameraThread(Thread):
         ws.send(dumps(command))
     
     async def setId(self, ws, command):
-        if hasattr(command["parameter"], "id"):
+        if "id" in command["parameter"].keys():
             self.parameter["id"] = command["parameter"]["id"]
-        self.logger.info(f"setId : {self['parameter']['id']}")
+        self.logger.info(f"setId : {self.parameter['id']}")
 
     async def getId(self, ws, command):
         command["parameter"]["id"] = self.parameter["id"]
@@ -51,7 +51,7 @@ class CameraThread(Thread):
     async def setup(self, ws, command):
         parameter = command["parameter"]
         for key in parameter.keys():
-            if hasattr(self.camera, key):
+            if key in self.camera.keys():
                 self.camera[key] = parameter[key]
 
     async def waitCommand(self):
