@@ -11,6 +11,7 @@ class ResponseHandler:
         from os import path, mkdir
         from base64 import b64decode
         from datetime import datetime
+        from lzma import decompress
         current_path = path.dirname(path.abspath(__file__))
         capture_time = str(datetime.utcfromtimestamp(float(packet['parameter']['time']) / 1000))
         self.logger.info(f"[{id}] capture : {capture_time }\t format : {packet['parameter']['format']}")
@@ -20,7 +21,7 @@ class ResponseHandler:
         if not path.exists(dir_path) and not path.isdir(dir_path):
             mkdir(dir_path)
         with open(full_path, "wb") as f:
-            f.write(b64decode(packet["parameter"]["data"].encode("utf-8")))
+            f.write(decompress(b64decode(packet["parameter"]["data"].encode("utf-8"))))
 
     async def timesync(self, id : str, packet : dict): 
         self.logger.info(f"[{id}] timesync : {float(packet['parameter']['timediff'])}")

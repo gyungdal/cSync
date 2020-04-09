@@ -91,6 +91,7 @@ class CameraThread(Thread):
         await ws.send(dumps(command))
 
     async def capture(self, ws, command):
+        from lzma import compress
         parameter = command["parameter"]
         #time offset 설정 안돼있으면 설정
         if "timediff" not in self.parameter.keys():
@@ -100,7 +101,7 @@ class CameraThread(Thread):
         while (parameter["time"] - timediff) <= (time() * 1000):
             pass
         self.camera.capture(stream, parameter["format"])
-        command["parameter"]["data"] = b64encode(stream.getvalue()).decode()
+        command["parameter"]["data"] = b64encode(compress(stream.getvalue())).decode()
         await ws.send(dumps(command))
     
     async def setId(self, ws, command):
