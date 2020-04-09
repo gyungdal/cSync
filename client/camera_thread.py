@@ -36,7 +36,7 @@ class CameraThread(Thread):
             pass
         self.camera.capture(stream, paramter["format"])
         command["parameter"]["data"] = b64encode(stream.getvalue()).decode()
-        ws.send(dumps(command))
+        await ws.send(dumps(command))
     
     async def setId(self, ws, command):
         if "id" in command["parameter"].keys():
@@ -46,7 +46,7 @@ class CameraThread(Thread):
     async def getId(self, ws, command):
         command["parameter"]["id"] = self.parameter["id"]
         self.logger.info(f"getId : {dumps(command)}")
-        ws.send(dumps(command))
+        await ws.send(dumps(command))
 
     async def setup(self, ws, command):
         parameter = command["parameter"]
