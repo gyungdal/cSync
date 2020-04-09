@@ -13,7 +13,7 @@ class ResponseHandler:
         current_path = path.dirname(path.abspath(__file__))
         self.logger.info(f"[{id}] capture : {float(packet['parameter']['time'])}\t format : {packet['parameter']['format']}")
         file_name = f"{id}.{packet['parameter']['format']}"
-        full_path = path.join(current_path, packet["parameter"]["time"], file_name)
+        full_path = path.join(current_path, str(packet["parameter"]["time"]), file_name)
         dir_path = path.dirname(full_path)
         if not path.exists(dir_path) and not path.isdir(dir_path):
             mkdir(dir_path)
