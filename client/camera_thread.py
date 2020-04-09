@@ -3,7 +3,6 @@ from threading import Thread
 from asyncio import get_event_loop, wait
 from pickle import dumps, loads
 from io import BytesIO
-from base64 import b64encode
 import ntplib 
 import picamera
 from picamera.array import PiRGBArray
@@ -104,7 +103,7 @@ class CameraThread(Thread):
         capture_bytes = stream.getvalue()
         compress_capture_bytes = compress(capture_bytes)
         self.logger.info(f"capture : {len(compress_capture_bytes)}bytes, {(len(compress_capture_bytes) / len(capture_bytes)) * 100} % compress") 
-        command["parameter"]["data"] = compress_capture_bytes.decode("utf-8")
+        command["parameter"]["data"] = compress_capture_bytes
         await ws.send(dumps(command))
     
     async def setId(self, ws, command):
