@@ -25,8 +25,7 @@ class WebThread(websockets.WebSocketServer):
     async def send_command_all(self, command : BasePacket):
         logger.debug(f"send command all {dumps(command)}")
         if self.users and command:
-            message = dumps(command)
-            await wait([user.send(message) for user in self.users])
+            await wait([user.send(message.toJson()) for user in self.users])
 
     async def register(self, websocket):
         self.users[websocket] = str(uuid4())
@@ -52,8 +51,8 @@ class WebThread(websockets.WebSocketServer):
         parameter = dict()
         parameter["time"] = ((time() + 5) * 1000)
         parameter["format"] = "png"
-        CapturePacket(parameter)
-        await self.send_command_all(StatusPacket())
+        packet = CapturePacket(parameter)
+        await self.send_command_all(packet)
 
     async def setup(self):
         logger.debug(f"setup")
