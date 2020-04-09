@@ -23,25 +23,31 @@ class WebThread(websockets.WebSocketServer):
         self.users = dict()
 
     async def send_command_all(self, command : BasePacket):
+        logger.debug(f"send command all {dumps(command)}")
         if self.users and command:
             message = dumps(command)
             await wait([user.send(message) for user in self.users])
 
     async def register(self, websocket):
         self.users[websocket] = str(uuid4())
+        logger.debug(f"register {self.users[websocket]}")
         packet = SetIdPacket(self.users[websocket])
         await websocket.send(packet.toJson())
 
     async def unregister(self, websocket):
+        logger.debug(f"unregister {self.users[websocket]}")
         del self.users[websocket]
 
     async def getId(self):
+        logger.debug(f"getId")
         await self.send_command_all(GetIdPacket())
 
     async def status(self):
+        logger.debug(f"status")
         await self.send_command_all(StatusPacket())
 
     async def capture(self):
+        logger.debug(f"capture")
         from time import time
         parameter = dict()
         parameter["time"] = ((time() + 5) * 1000)
@@ -50,19 +56,21 @@ class WebThread(websockets.WebSocketServer):
         await self.send_command_all(StatusPacket())
 
     async def setup(self):
+        logger.debug(f"setup")
         parameter = {
-            'awb_mode' : "auto",
-            "brightness" : 50,
-            "exif_tags" : {
-                'EXIF.UserComments' : 'Copyright (c) 2020 Gyeongsik Kim'
+            awb_mode : "auto",
+            brightness : 50,
+            exif_tags : {
+                EXIF.UserComments : 'Copyright (c) 2020 Gyeongsik Kim'
             },
-            "exposure_mode" : "auto",
-            "flash_mode" : "auto"
+            exposure_mode : "auto",
+            flash_mode : "auto"
         }
         packet = SetupPacket(parameter)
         await self.send_command_all(packet)
     
     async def timesync(self):
+        logger.debug(f"timesync")
         packet = TimeSyncPacket()
         await self.send_command_all(packet)
     
