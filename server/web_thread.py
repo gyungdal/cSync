@@ -60,13 +60,13 @@ class WebThread(websockets.WebSocketServer):
     async def setup(self):
         logger.debug(f"setup")
         parameter = {
-            awb_mode : "auto",
-            brightness : 50,
-            exif_tags : {
-                EXIF.UserComments : 'Copyright (c) 2020 Gyeongsik Kim'
+            "awb_mode" : "auto",
+            "brightness" : 50,
+            "exif_tags" : {
+                "EXIF.UserComments" : 'Copyright (c) 2020 Gyeongsik Kim'
             },
-            exposure_mode : "auto",
-            flash_mode : "auto"
+            "exposure_mode" : "auto",
+            "flash_mode" : "auto"
         }
         packet = SetupPacket(parameter)
         await self.send_command_all(packet)
