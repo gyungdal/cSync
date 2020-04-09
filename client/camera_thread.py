@@ -69,7 +69,7 @@ class CameraThread(Thread):
             command = loads(str(await ws.recv()))
             self.logger.debug(dumps(command))
             if "action" in command.keys():
-                HANDLE[command["action"]](ws, command)
+                await HANDLE[command["action"]](ws, command)
 
     def run(self):
         from asyncio import run
