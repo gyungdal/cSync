@@ -53,12 +53,15 @@ async def main():
     )
 
     try:
-        for client in clients:
-            if client.isAlive():
-                client.handled = True
-        clients = [t for t in clients if not t.handled]
-        logger.info(f"Client Count : {len(clients)}")
-        await sleep(1)
+        while True:
+            for client in clients:
+                if client.isAlive():
+                    client.handled = True
+            before_len = len(clients)
+            clients = [t for t in clients if not t.handled]
+            if before_len != len(clients):
+                logger.info(f"Client Count : {len(clients)}")
+            await sleep(1)
     finally:
         logger.error("transport close")
         transport.close()
