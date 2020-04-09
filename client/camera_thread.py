@@ -91,7 +91,6 @@ class CameraThread(Thread):
         await ws.send(dumps(command))
 
     async def capture(self, ws, command):
-        from lzma import compress
         parameter = command["parameter"]
         #time offset 설정 안돼있으면 설정
         if "timediff" not in self.parameter.keys():
@@ -102,10 +101,7 @@ class CameraThread(Thread):
             pass
         self.camera.capture(stream, parameter["format"])
         capture_bytes = stream.getvalue()
-        compress_capture_bytes = compress(capture_bytes)
-        compress_level = (100 - ((len(compress_capture_bytes) / len(capture_bytes)) * 100))
-        self.logger.info(f"capture : {len(compress_capture_bytes)}bytes, {compress_level} % reduce") 
-        command["parameter"]["data"] = compress_capture_bytes
+        command["parameter"]["data"] = capture_bytes
         await ws.send(dumps(command))
     
     async def setId(self, ws, command):
