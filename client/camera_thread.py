@@ -7,7 +7,6 @@ from base64 import b64encode
 import ntplib 
 import picamera
 from time import time
-import time
 import logging
 
 timeServer = 'time.windows.com' 
@@ -30,11 +29,15 @@ class CameraThread(Thread):
         self.logger.debug(f"timediff : {response.offset}")
 
     async def capture(self, ws, command):
-        paramter = command["parameter"]
+        parameter = command["parameter"]
+        #time offset 설정 안돼있으면 설정
+        if "timediff" not in self.parameter.keys():
+            await self.timesync(ws, command)
+        timediff = (self.parameter["timediff"] * 1000)
         stream = BytesIO()
-        while paramter["time"] <= (time() * 1000):
+        while (parameter["time"] - timediff) <= (time() * 1000):
             pass
-        self.camera.capture(stream, paramter["format"])
+        self.camera.capture(stream, parameter["format"])
         command["parameter"]["data"] = b64encode(stream.getvalue()).decode()
         await ws.send(dumps(command))
     
