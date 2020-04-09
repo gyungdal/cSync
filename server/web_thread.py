@@ -84,8 +84,8 @@ class WebThread(websockets.WebSocketServer):
     async def response(self, websocket, path):
         await self.register(websocket)
         try:
-            async for message in websocket:
-                packet : dict = loads(message)
+            while True:
+                packet = loads(websocket.recv())
                 if packet["action"] in self.HANDLER_MAP.keys():
                     await self.HANDLER_MAP[packet["action"]](self.users[websocket], packet)
                 else:
