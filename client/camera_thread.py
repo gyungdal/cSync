@@ -82,7 +82,7 @@ class CameraThread(Thread):
                 break
         await self.focusing(max_index)
         self.logger.debug("focusing done")
-        self.camera.resolution = (3280, 2464)
+        self.camera.resolution = (2592,1944)
 
     async def prepare(self, ws, command):
         await self.prepare_capture()
@@ -141,7 +141,8 @@ class CameraThread(Thread):
                 if "action" in command.keys():
                     await HANDLE[command["action"]](ws, command)
         finally:
-            self.camera.stop()
+            self.camera.stop_preview()
+            self.camera.close()
 
     def run(self):
         from asyncio import run
