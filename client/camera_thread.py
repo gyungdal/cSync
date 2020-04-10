@@ -82,7 +82,7 @@ class CameraThread(Thread):
                 break
         await self.focusing(max_index)
         self.logger.debug("focusing done")
-        self.camera.resolution = (2592,1944)
+        self.camera.resolution = (3280, 2464)
 
     async def prepare(self, ws, command):
         await self.prepare_capture()
