@@ -1,7 +1,7 @@
-asyncio==3.4.3
-ntplib==0.3.3
-numpy==1.18.2
-opencv-contrib-python==3.4.3.18
-opencv-python==4.1.1.26
-picamera==1.13
-websockets==8.1
+asyncio>=3.4.3
+ntplib>=0.3.3
+numpy>=1.18.2
+opencv-contrib-python>=3.4.3.18
+opencv-python>=4.1.1.26
+picamera>=1.13
+websockets>=8.1
