@@ -37,7 +37,7 @@ class WebThread(websockets.WebSocketServer):
 
     async def getIdCheck(self, id : str, packet : dict):
         await self.handler.getId(id, packet)
-        if VERSION != packet.version :
+        if float(VERSION) != float(packet['version']) :
             logger.info(f"[{id}] require restart")
             ws = [key for key, value in self.users.items() if value == id]
             await ws.send(RestartPacket().toJson())
