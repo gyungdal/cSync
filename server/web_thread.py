@@ -39,6 +39,7 @@ class WebThread(websockets.WebSocketServer):
         await self.handler.getId(id, packet)
         if VERSION != packet["version"] :
             ws = [key for key, value in self.users.items() if value == id]
+            logger.info(f"[{id}] require restart")
             await ws.send(RestartPacket())
 
     async def register(self, websocket):
