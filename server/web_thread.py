@@ -17,7 +17,7 @@ class WebThread(websockets.WebSocketServer):
         self.handler = ResponseHandler()
         self.HANDLER_MAP = {
             "capture" : self.handler.capture,
-            "getId" : self.handler.getId,
+            "getId" : self.getId,
             "status" : self.handler.status,
             "timesync" : self.handler.timesync,
             "setup" : self.handler.setup
@@ -30,6 +30,16 @@ class WebThread(websockets.WebSocketServer):
         logger.debug(f"send command all {js}")
         if self.users and command:
             await wait([user.send(js) for user in self.users])
+
+    async def restart(self):
+        logger.debug(f"restart")
+        await self.send_command_all(RestartPacket())
+
+    async def getId(self, id : str, packet : dict):
+        await self.handler.getId(id, packet)
+        if VERSION != packet["version"] :
+            ws = [key for key, value in self.users.items() if value == id]
+            await ws.send(RestartPacket())
 
     async def register(self, websocket):
         self.users[websocket] = str(uuid4())

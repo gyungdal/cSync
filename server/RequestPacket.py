@@ -1,5 +1,5 @@
 from pickle import dumps
-VERSION = 202004.0801
+VERSION = 202004.2001
 
 class BasePacket:
     def __init__(self):
@@ -51,6 +51,11 @@ class PreparePacket(BasePacket):
     def __init__(self):
         BasePacket.__init__(self)
         self.action = "prepare"
+
+class RestartPacket(BasePacket):
+    def __init__(self, url : str):
+        BasePacket.__init__(self)
+        self.action = "restart"
 
 class CapturePacket(BasePacket):
     def __init__(self, parameter : dict):

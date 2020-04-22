@@ -57,7 +57,8 @@ async def main(stop, web : WebThread):
             'timesync' : web.timesync,
             'status' : web.status,
             'getId' : web.getId,
-            'prepare' : web.prepare
+            'prepare' : web.prepare,
+            'restart' : web.restart
         }
         line = line.strip()
         if line in HANDLER.keys():

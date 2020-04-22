@@ -120,6 +120,10 @@ class CameraThread(Thread):
             self.logger.info(f"{key} : {parameter[key]}")        
             self.camera[key] = parameter[key]
 
+    async def restart(self, ws, command):
+        from os import system
+        system("reboot")
+
     async def waitCommand(self):
         FLAG = True
         
@@ -129,7 +133,8 @@ class CameraThread(Thread):
             "getId" : self.getId,
             "capture" : self.capture,
             "timesync" : self.timesync,
-            "setup" : self.setup
+            "setup" : self.setup,
+            "restart" : self.restart
         }
         try:
             ws = await websockets.connect(self.url, write_limit=MAX_PACKET_SIZE, read_limit=MAX_PACKET_SIZE, max_size=MAX_PACKET_SIZE)
