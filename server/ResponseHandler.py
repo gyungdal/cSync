@@ -26,6 +26,7 @@ class ResponseHandler:
         self.logger.info(f"[{id}] timesync : {float(packet['parameter']['timediff'])}")
 
     async def getId(self, id : str, packet : dict): 
+        self.logger.info(f"getId : {packet}")
         self.logger.info(f"getId : {packet['parameter']['id']}")
     
     async def status(self, id : str, packet : dict): 
