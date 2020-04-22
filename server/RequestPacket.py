@@ -1,5 +1,5 @@
 from pickle import dumps
-VERSION = 202004.2001
+VERSION = 202004.2002
 
 class BasePacket:
     def __init__(self):
