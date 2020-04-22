@@ -122,7 +122,8 @@ class CameraThread(Thread):
 
     async def restart(self, ws, command):
         from os import system
-        system("reboot")
+        await system("git pull")
+        await system("reboot")
 
     async def waitCommand(self):
         FLAG = True
