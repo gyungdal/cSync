@@ -40,7 +40,7 @@ class WebThread(websockets.WebSocketServer):
         if VERSION != packet["version"] :
             ws = [key for key, value in self.users.items() if value == id]
             logger.info(f"[{id}] require restart")
-            await ws.send(RestartPacket())
+            await ws.send(RestartPacket().toJson())
 
     async def register(self, websocket):
         self.users[websocket] = str(uuid4())

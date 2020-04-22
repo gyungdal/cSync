@@ -53,7 +53,7 @@ class PreparePacket(BasePacket):
         self.action = "prepare"
 
 class RestartPacket(BasePacket):
-    def __init__(self, url : str):
+    def __init__(self):
         BasePacket.__init__(self)
         self.action = "restart"
 
