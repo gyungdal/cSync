@@ -81,8 +81,12 @@ class CameraThread(Thread):
             if focal_distance > 1000:
                 break
         await self.focusing(max_index)
-        self.logger.debug("focusing done")
+        self.camera.stop_preview()
+        self.camera.close()
+        self.camera = picamera.PiCamera()
         self.camera.resolution = (2592,1944)
+        self.camera.start_preview()
+        self.logger.debug("focusing done")
 
     async def prepare(self, ws, command):
         await self.prepare_capture()
