@@ -1,6 +1,7 @@
 import signal 
 import logging
-from multiprocessing import Pipe, Popen
+from multiprocessing import Pipe
+from subprocess import Popen
 from web_thread import WebThread
 from sys import exit
 from aioconsole import ainput
