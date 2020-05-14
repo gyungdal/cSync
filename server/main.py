@@ -74,7 +74,7 @@ async def main(stop, web : WebThread):
 
 if __name__ == "__main__":
     from asyncio import get_event_loop, gather
-    process = Popen(['python3', '-m', 'http.server', '8080', '--directory', './capture'])
+    process = Popen(['python3', '-m', 'http.server', '8080', '--directory', './capture'], stdout=PIPE)
     loop = get_event_loop()
     stop = loop.create_future()
     loop.add_signal_handler(signal.SIGINT, stop.set_result, None)
