@@ -15,7 +15,7 @@ class ResponseHandler:
         capture_time = str(datetime.utcfromtimestamp(float(packet['parameter']['time']) / 1000))
         self.logger.info(f"[{id}] capture : {capture_time }\t format : {packet['parameter']['format']}")
         file_name = f"{id}.{packet['parameter']['format']}"
-        full_path = path.join(current_path, capture_time, file_name)
+        full_path = path.join(current_path, "capture", capture_time, file_name)
         dir_path = path.dirname(full_path)
         if not path.exists(dir_path) and not path.isdir(dir_path):
             mkdir(dir_path)

@@ -1,6 +1,6 @@
 import signal 
 import logging
-from multiprocessing import Pipe
+from multiprocessing import Pipe, Popen
 from web_thread import WebThread
 from sys import exit
 from aioconsole import ainput
@@ -73,7 +73,7 @@ async def main(stop, web : WebThread):
 
 if __name__ == "__main__":
     from asyncio import get_event_loop, gather
-
+    process = Popen('python3', '-m', 'http.server', '--directory', './capture')
     loop = get_event_loop()
     stop = loop.create_future()
     loop.add_signal_handler(signal.SIGINT, stop.set_result, None)
@@ -92,4 +92,4 @@ if __name__ == "__main__":
     finally:
         loop.run_until_complete(loop.shutdown_asyncgens())
         loop.close()
-        
+        process.terminate()
